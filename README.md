@@ -13,7 +13,7 @@ The guide builds up from a plain RC, to a Schmitt-trigger inverter, to a complet
 
 **https://borenw.github.io/magtile-circuits/**
 
-Part of [Bo's Engineering Curriculum](https://borenw.github.io/) — **Page 37**.
+Part of [Bo's Engineering Curriculum](https://borenw.github.io/) — **Page 38**.
 
 ## The blinker
 
