@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MagTile Circuits — 1-Second LED Blinker Build Guide</title>
+<style>
+  :root{
+    --blue:#0052CC; --blue-d:#0747A6; --blue-l:#DEEBFF; --blue-ll:#F4F8FF;
+    --ink:#172B4D; --sub:#5E6C84; --line:#DFE1E6;
+    --green:#36B37E; --greenbg:#E3FCEF; --red:#DE350B; --redbg:#FFEBE6;
+    --amber:#FF991F; --amberbg:#FFFAE6; --purple:#6554C0; --purplebg:#EAE6FF;
+    --copper:#B7602F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 22px 80px}
+  header.hero{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);
+    color:#fff;padding:34px 30px;border-radius:0 0 6px 6px;margin-bottom:6px}
+  header.hero .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:700}
+  header.hero h1{margin:6px 0 8px;font-size:30px;line-height:1.2}
+  header.hero p{margin:0;opacity:.95;max-width:720px}
+  .chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+    padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600}
+  h2{color:var(--blue-d);font-size:22px;margin:38px 0 4px;
+    padding:9px 14px;background:var(--blue-l);border-left:5px solid var(--blue);border-radius:4px}
+  h3{font-size:17px;margin:26px 0 6px;color:var(--ink)}
+  h4{font-size:14px;margin:18px 0 4px;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
+  p{margin:8px 0}
+  a{color:var(--blue)}
+  code{background:#F4F5F7;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:13px;color:var(--blue-d)}
+  nav.toc{background:var(--blue-ll);border:1px solid var(--line);border-radius:6px;padding:16px 22px;margin:18px 0 6px}
+  nav.toc .th{font-weight:800;color:var(--blue-d);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  nav.toc ul{margin:4px 0;padding-left:20px}
+  nav.toc>ul{padding-left:18px}
+  nav.toc li{margin:3px 0}
+  nav.toc a{text-decoration:none;font-weight:600}
+  nav.toc a:hover{text-decoration:underline}
+  nav.toc ul ul li{margin:1px 0}
+  nav.toc ul ul a{font-weight:400;color:var(--sub)}
+  .panel{border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}
+  .info{background:var(--blue-l);border-color:#B3D4FF}
+  .tip{background:var(--greenbg);border-color:#ABF5D1}
+  .warn{background:var(--amberbg);border-color:#FFE380}
+  .note{background:var(--purplebg);border-color:#C0B6F2}
+  .panel .lab{font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+  .info .lab{color:var(--blue-d)} .tip .lab{color:#006644} .warn .lab{color:#974F0C} .note .lab{color:#403294}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;background:#fff}
+  caption{caption-side:top;text-align:left;font-weight:700;color:var(--sub);font-size:12.5px;margin-bottom:6px}
+  th{background:var(--blue);color:#fff;text-align:left;padding:9px 11px;font-size:12.5px;font-weight:700;border:1px solid var(--blue-d)}
+  td{border:1px solid var(--line);padding:8px 11px;vertical-align:middle}
+  tr:nth-child(even) td{background:#FAFBFC}
+  .rank{font-weight:800;text-align:center;width:52px}
+  .r1{color:#B7791F}.r2{color:#6B778C}.r3{color:var(--copper)}
+  .num{font-variant-numeric:tabular-nums;font-weight:700;text-align:right;white-space:nowrap}
+  .pos{color:var(--green)} .neg{color:var(--red)} .mid{color:var(--amber)} .cool{color:var(--blue)} .pur{color:var(--purple)}
+  .bar{height:9px;border-radius:5px;background:var(--blue);display:inline-block;vertical-align:middle;margin-left:8px}
+  .barwrap{display:flex;align-items:center;gap:2px}
+  .ic{font-size:16px}
+  .center{text-align:center}
+  .truth td,.truth th{text-align:center}
+  figure{margin:16px 0;text-align:center}
+  figure svg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+  figcaption{color:var(--sub);font-size:12.5px;margin-top:6px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  ol.steps{counter-reset:s;list-style:none;padding-left:0}
+  ol.steps>li{position:relative;padding:10px 10px 10px 46px;margin:8px 0;background:var(--blue-ll);
+    border:1px solid var(--line);border-radius:6px;counter-increment:s}
+  ol.steps>li::before{content:counter(s);position:absolute;left:12px;top:11px;background:var(--blue);color:#fff;
+    width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-weight:800;font-size:13px}
+  .foot{margin-top:44px;padding-top:16px;border-top:2px solid var(--blue-l);color:var(--sub);font-size:13px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:12.5px;margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero" id="top">
+  <div class="eyebrow">🧩 Edu Playground · Maker Electronics</div>
+  <h1>MagTile Circuits</h1>
+  <p>Snap-together magnetic circuit tiles. Every component — resistor, capacitor, logic gate, LED — lives inside the smallest 1&times;1 magnetic square, and the magnets do double duty: they hold the tiles together <em>and</em> carry the current. Dedicated <strong>straight, elbow, and T wire-tiles</strong> route the nets, so the circuit you snap together keeps the same floorplan as the schematic on paper. This guide builds up from a plain RC, to an inverter, to a complete <strong>LED that blinks once per second</strong> on a single 3&nbsp;V coin cell.</p>
+  <div class="chips">
+    <span class="chip">⚡ 3&nbsp;V CR2032</span>
+    <span class="chip">🔁 ~1&nbsp;Hz blink</span>
+    <span class="chip">🧲 Magnet = wire</span>
+    <span class="chip">🚫 1 × 74LVC1G14 Schmitt</span>
+    <span class="chip">🟥 Red LED + R2</span>
+    <span class="chip">🧵 Wire-tile routing</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="th">📑 Index</div>
+  <ul>
+    <li><a href="#concept">1. The Big Idea — magnets that carry current</a></li>
+    <li><a href="#tile">2. Anatomy of a 1&times;1 Tile</a>
+      <ul>
+        <li><a href="#tile-edge">2.1 Each edge is a wire</a></li>
+        <li><a href="#tile-poly">2.2 Polarity keying (you can't wire it wrong)</a></li>
+        <li><a href="#tile-route">2.3 Routing tiles — straight, elbow, T</a></li>
+      </ul>
+    </li>
+    <li><a href="#catalog">3. Tile Catalog</a></li>
+    <li><a href="#l1">4. Lesson 1 — The RC (charge &amp; discharge)</a></li>
+    <li><a href="#l2">5. Lesson 2 — The Inverter (NOT + Schmitt trigger)</a></li>
+    <li><a href="#l3">6. Lesson 3 — The 1-Second Blinker</a>
+      <ul>
+        <li><a href="#l3-sch">6.1 Schematic (single inverter)</a></li>
+        <li><a href="#l3-grid">6.2 Tile floorplan — mirrors the schematic</a></li>
+        <li><a href="#l3-wave">6.3 What you'll see (waveform)</a></li>
+        <li><a href="#l3-math">6.4 Timing math — why it's 1 second</a></li>
+      </ul>
+    </li>
+    <li><a href="#bom">7. Bill of Materials</a></li>
+    <li><a href="#build">8. Build It — step by step</a></li>
+    <li><a href="#trouble">9. Troubleshooting</a></li>
+    <li><a href="#next">10. Next Steps &amp; the GitHub repo</a></li>
+  </ul>
+</nav>
+
+<!-- ============ 1. CONCEPT ============ -->
+<h2 id="concept">1. The Big Idea — magnets that carry current</h2>
+<p>Magnetic building tiles (the Magna-Tiles / Magformers family) already snap together along their edges with embedded magnets. <strong>MagTile Circuits</strong> adds one thing: a conductive contact riding on top of each edge magnet. When two tiles click together, the magnets pull the contacts into firm metal-to-metal pressure — so the same click that mechanically joins the tiles also completes the circuit.</p>
+<div class="panel info">
+  <div class="lab">Why this is fun</div>
+  A child (or an engineer prototyping fast) builds a working circuit by <em>snapping squares together like Lego</em> — no breadboard, no jumper wires, no solder. Because plain <strong>wire-tiles</strong> (straight, elbow, T) carry the connections, you lay the circuit out in the same shape as its schematic. Rearranging is as fast as sliding a tile, and a whole oscillator fits in your palm.
+</div>
+<div class="two">
+  <div class="panel tip"><div class="lab">✅ What the magnet gives you</div>Mechanical hold, electrical contact, and <em>alignment</em> — all free, all at once. Snap = connected.</div>
+  <div class="panel warn"><div class="lab">⚠️ The one rule to respect</div>Coin cells are low-current but a dead short still gets warm. The LED always sits behind its R2 current-limit tile, and power tiles are polarity-keyed so + never meets − by accident.</div>
+</div>
+
+<!-- ============ 2. TILE ANATOMY ============ -->
+<h2 id="tile">2. Anatomy of a 1&times;1 Tile</h2>
+<p id="tile-edge">The tile is a flat square. Along each of the four edges sits a magnet, and on top of each magnet sits a spring-loaded conductive pad. <strong>Everything electrical happens at the four edges.</strong> Inside the square, thin copper traces connect the component's two legs to whichever edges that component needs.</p>
+
+<figure>
+<svg viewBox="0 0 760 380" role="img" aria-label="Exploded diagram of a 1x1 circuit tile showing four edge contacts and internal component">
+  <rect x="70" y="70" width="240" height="240" rx="14" fill="#F4F8FF" stroke="#0052CC" stroke-width="3"/>
+  <g font-family="inherit" font-size="12" font-weight="700" text-anchor="middle">
+    <rect x="150" y="55" width="80" height="22" rx="6" fill="#B7602F" stroke="#7a3f1d" stroke-width="1.5"/>
+    <text x="190" y="70" fill="#fff">EDGE&nbsp;N</text>
+    <rect x="150" y="303" width="80" height="22" rx="6" fill="#B7602F" stroke="#7a3f1d" stroke-width="1.5"/>
+    <text x="190" y="318" fill="#fff">EDGE&nbsp;S</text>
+    <rect x="47" y="169" width="60" height="42" rx="6" fill="#B7602F" stroke="#7a3f1d" stroke-width="1.5"/>
+    <text x="77" y="195" fill="#fff">W</text>
+    <rect x="273" y="169" width="60" height="42" rx="6" fill="#B7602F" stroke="#7a3f1d" stroke-width="1.5"/>
+    <text x="303" y="195" fill="#fff">E</text>
+  </g>
+  <rect x="150" y="175" width="80" height="30" rx="4" fill="#fff" stroke="#172B4D" stroke-width="2"/>
+  <line x1="107" y1="190" x2="150" y2="190" stroke="#B7602F" stroke-width="4"/>
+  <line x1="230" y1="190" x2="273" y2="190" stroke="#B7602F" stroke-width="4"/>
+  <text x="190" y="194" text-anchor="middle" font-size="12" font-weight="700">R / C / IC</text>
+  <text x="190" y="345" text-anchor="middle" font-size="12.5" fill="#5E6C84">One tile, four edge nodes, one component inside</text>
+
+  <text x="560" y="52" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">EDGE JOINT — cross-section</text>
+  <rect x="420" y="120" width="120" height="70" rx="8" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+  <text x="480" y="162" text-anchor="middle" font-size="12" font-weight="700">Tile&nbsp;A</text>
+  <rect x="580" y="120" width="120" height="70" rx="8" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+  <text x="640" y="162" text-anchor="middle" font-size="12" font-weight="700">Tile&nbsp;B</text>
+  <rect x="540" y="128" width="18" height="24" fill="#DE350B"/><text x="549" y="145" text-anchor="middle" font-size="11" fill="#fff" font-weight="800">N</text>
+  <rect x="562" y="128" width="18" height="24" fill="#0052CC"/><text x="571" y="145" text-anchor="middle" font-size="11" fill="#fff" font-weight="800">S</text>
+  <rect x="540" y="154" width="40" height="10" rx="3" fill="#FFAB00" stroke="#8a5b00"/>
+  <text x="560" y="184" text-anchor="middle" font-size="11" fill="#5E6C84">gold contact pads pressed together</text>
+  <path d="M430 108 H690" stroke="#36B37E" stroke-width="3" fill="none" marker-end="url(#ah)"/>
+  <text x="560" y="102" text-anchor="middle" font-size="11.5" font-weight="700" fill="#006644">current flows A → B through the joint</text>
+  <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#36B37E"/></marker></defs>
+  <rect x="420" y="210" width="280" height="120" rx="8" fill="#FFFAE6" stroke="#FFE380"/>
+  <text x="435" y="234" font-size="12" font-weight="800" fill="#974F0C">The magnet does three jobs:</text>
+  <text x="435" y="258" font-size="12" fill="#172B4D">🧲 &nbsp;pulls the tiles together (hold)</text>
+  <text x="435" y="280" font-size="12" fill="#172B4D">📐 &nbsp;aligns the pads (registration)</text>
+  <text x="435" y="302" font-size="12" fill="#172B4D">⚡ &nbsp;clamps the contact (conduction)</text>
+</svg>
+<figcaption>Left: a single tile with four edge nodes (N, S, E, W). Right: when two edges snap, opposite magnet poles (N↔S) latch and squeeze the gold pads into a solid electrical joint.</figcaption>
+</figure>
+
+<h3 id="tile-poly">2.2 Polarity keying — you can't wire it wrong</h3>
+<p>Because magnets only latch <em>N-to-S</em>, the physics itself enforces orientation. Power tiles put <strong>N&nbsp;=&nbsp;+3&nbsp;V</strong> on one edge family and <strong>S&nbsp;=&nbsp;GND</strong> on the other, so a battery edge will physically refuse to mate with another + edge. Signal tiles (resistor, capacitor, wire) are symmetric and can face either way. This is the same trick that keeps a USB-C plug reversible but a battery holder foolproof.</p>
+
+<h3 id="tile-route">2.3 Routing tiles — straight, elbow, T</h3>
+<p>Components alone can't reach each other across a grid, so three <strong>wire-tiles</strong> do the plumbing. They carry a net from one edge to another with nothing inside but copper — the electrical equivalent of road pieces in a toy train set. With these you place each component where it sits in the schematic and simply <em>route the wires to match</em>.</p>
+<figure>
+<svg viewBox="0 0 620 210" role="img" aria-label="The three wire-tile types: straight, elbow, and T-junction">
+  <g font-family="inherit">
+    <!-- straight -->
+    <rect x="40" y="30" width="120" height="120" rx="12" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+    <line x1="100" y1="30" x2="100" y2="150" stroke="#172B4D" stroke-width="6"/>
+    <text x="100" y="180" text-anchor="middle" font-size="13" font-weight="800">Straight</text>
+    <text x="100" y="198" text-anchor="middle" font-size="11" fill="#5E6C84">two opposite edges</text>
+    <!-- elbow -->
+    <rect x="250" y="30" width="120" height="120" rx="12" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+    <polyline points="310,30 310,90 370,90" fill="none" stroke="#172B4D" stroke-width="6"/>
+    <text x="310" y="180" text-anchor="middle" font-size="13" font-weight="800">Elbow</text>
+    <text x="310" y="198" text-anchor="middle" font-size="11" fill="#5E6C84">two adjacent edges</text>
+    <!-- T -->
+    <rect x="460" y="30" width="120" height="120" rx="12" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+    <line x1="460" y1="90" x2="580" y2="90" stroke="#172B4D" stroke-width="6"/>
+    <line x1="520" y1="90" x2="520" y2="150" stroke="#172B4D" stroke-width="6"/>
+    <circle cx="520" cy="90" r="6" fill="#0052CC"/>
+    <text x="520" y="180" text-anchor="middle" font-size="13" font-weight="800">T-junction</text>
+    <text x="520" y="198" text-anchor="middle" font-size="11" fill="#5E6C84">three edges (a node)</text>
+  </g>
+</svg>
+<figcaption>Straight and elbow are your idea; the <strong>T-junction</strong> is the small addition needed wherever three paths meet — and in the blinker both the IN and OUT nodes are exactly that.</figcaption>
+</figure>
+<div class="panel note"><div class="lab">💬 Design call — flag for you</div>I added the <strong>T-tile</strong> because the blinker's IN node (inverter input + feedback + capacitor) and OUT node (inverter output + feedback + R2) each join three wires, which a straight/elbow can't do. If you'd rather keep the set to just straight + elbow, we can instead let those 3-way nodes happen <em>on a component tile's own edge</em> — say hello and I'll rework the floorplan that way.</div>
+
+<!-- ============ 3. CATALOG ============ -->
+<h2 id="catalog">3. Tile Catalog</h2>
+<p>Six component tiles plus the three wire-tiles build every circuit in this guide. Each is a 1&times;1 square; the "Connects" column shows which edges the internal copper bridges.</p>
+<table>
+  <caption>Table 3 · Tiles used in this build</caption>
+  <thead><tr>
+    <th>Tile</th><th>Symbol</th><th>What it does</th><th>Value used</th><th>Connects (edges)</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><span class="ic">🔋</span> Power</td><td class="center">CR2032</td><td>Supplies +3&nbsp;V and GND to the whole build via the edge rails</td><td class="num cool">3.0&nbsp;V</td><td>N&nbsp;=&nbsp;+V, S&nbsp;=&nbsp;GND</td></tr>
+    <tr><td><span class="ic">🚫</span> Inverter</td><td class="center">▷o</td><td>Schmitt-trigger NOT gate — the one active tile; it oscillates and drives the LED</td><td class="num">74LVC1G14</td><td>IN, OUT, +V, GND</td></tr>
+    <tr><td><span class="ic">🟫</span> Resistor</td><td class="center">▭</td><td>Two used: <strong>R1</strong> sets the RC timing (feedback), <strong>R2</strong> limits LED current</td><td class="num pur">120&nbsp;kΩ / 330&nbsp;Ω</td><td>W ↔ E</td></tr>
+    <tr><td><span class="ic">⚡</span> Capacitor</td><td class="center">⊣⊢</td><td>The timing "tank" — fills and drains through R1</td><td class="num mid">10&nbsp;µF</td><td>W ↔ GND</td></tr>
+    <tr><td><span class="ic">💡</span> LED</td><td class="center">▷|</td><td>Lights up; bare red LED, current set by the separate R2 tile</td><td class="num neg">Red</td><td>+ ↔ −</td></tr>
+    <tr><td><span class="ic">➖</span> Straight wire</td><td class="center">│</td><td>Carries a net across two opposite edges</td><td class="num">0&nbsp;Ω</td><td>N ↔ S</td></tr>
+    <tr><td><span class="ic">🔄</span> Elbow wire</td><td class="center">└</td><td>Turns a net 90° between two adjacent edges</td><td class="num">0&nbsp;Ω</td><td>N ↔ E (etc.)</td></tr>
+    <tr><td><span class="ic">⑂</span> T-junction wire</td><td class="center">├</td><td>Ties three edges together — a routable node</td><td class="num">0&nbsp;Ω</td><td>3 edges</td></tr>
+  </tbody>
+</table>
+<div class="panel note"><div class="lab">💡 Design note</div>The inverter tile hides a tiny single-gate chip (74LVC1G14, SOT-23-5). It needs four connections — <code>IN</code>, <code>OUT</code>, <code>+V</code>, <code>GND</code> — which is exactly why a 4-edge square is the smallest tile that can hold an active device. Passive and wire tiles only use two (or, for the T, three) edges.</div>
+
+<!-- ============ 4. LESSON 1 : RC ============ -->
+<h2 id="l1">4. Lesson 1 — The RC (charge &amp; discharge)</h2>
+<p>Before anything blinks, feel how a resistor and capacitor make <em>time</em>. Snap a resistor tile between +3&nbsp;V and a node, and a capacitor tile from that node to GND. The capacitor fills up like a bucket through a narrow straw (the resistor). The bucket voltage doesn't jump — it eases up on a curve.</p>
+
+<div class="two">
+<figure>
+<svg viewBox="0 0 340 230" role="img" aria-label="RC charging circuit schematic">
+  <text x="170" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">RC circuit</text>
+  <line x1="40" y1="50" x2="300" y2="50" stroke="#DE350B" stroke-width="3"/>
+  <text x="300" y="45" font-size="11" font-weight="700" fill="#DE350B">+3V</text>
+  <line x1="110" y1="50" x2="110" y2="80" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M110 80 l10 6 l-20 8 l20 8 l-20 8 l20 8 l-10 6" fill="none" stroke="#6554C0" stroke-width="2.5"/>
+  <text x="150" y="105" font-size="12" font-weight="700" fill="#6554C0">R 120kΩ</text>
+  <line x1="110" y1="124" x2="110" y2="150" stroke="#172B4D" stroke-width="2.5"/>
+  <circle cx="110" cy="150" r="4" fill="#172B4D"/>
+  <text x="120" y="146" font-size="11" font-weight="700">Vc</text>
+  <line x1="110" y1="150" x2="110" y2="168" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="90" y1="168" x2="130" y2="168" stroke="#FF991F" stroke-width="3.5"/>
+  <line x1="90" y1="178" x2="130" y2="178" stroke="#FF991F" stroke-width="3.5"/>
+  <text x="140" y="177" font-size="12" font-weight="700" fill="#FF991F">C 10µF</text>
+  <line x1="110" y1="178" x2="110" y2="200" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="40" y1="200" x2="300" y2="200" stroke="#172B4D" stroke-width="3"/>
+  <line x1="70" y1="207" x2="90" y2="207" stroke="#172B4D" stroke-width="2"/>
+  <line x1="74" y1="211" x2="86" y2="211" stroke="#172B4D" stroke-width="2"/>
+  <text x="300" y="215" font-size="11" font-weight="700" fill="#172B4D">GND</text>
+</svg>
+<figcaption>Resistor from +V to the node, capacitor from the node to GND.</figcaption>
+</figure>
+
+<figure>
+<svg viewBox="0 0 340 230" role="img" aria-label="Capacitor charging curve">
+  <text x="170" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">Vc over time</text>
+  <line x1="45" y1="40" x2="45" y2="190" stroke="#5E6C84" stroke-width="1.5"/>
+  <line x1="45" y1="190" x2="315" y2="190" stroke="#5E6C84" stroke-width="1.5"/>
+  <text x="20" y="55" font-size="10" fill="#5E6C84">3V</text>
+  <text x="20" y="150" font-size="10" fill="#5E6C84">0V</text>
+  <text x="300" y="205" font-size="10" fill="#5E6C84">time</text>
+  <line x1="45" y1="50" x2="315" y2="50" stroke="#DE350B" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="45" y1="98" x2="130" y2="98" stroke="#36B37E" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="130" y1="98" x2="130" y2="190" stroke="#36B37E" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="135" y="112" font-size="10" fill="#006644" font-weight="700">63% at 1τ</text>
+  <path d="M45 190 C 80 100, 110 66, 315 52" fill="none" stroke="#0052CC" stroke-width="3"/>
+</svg>
+<figcaption>The classic charging curve — fast at first, then easing toward 3&nbsp;V.</figcaption>
+</figure>
+</div>
+
+<div class="panel info"><div class="lab">🧮 The time constant τ</div>
+<code>τ = R × C = 120,000 Ω × 0.000010 F = 1.2 seconds</code>. After one τ the capacitor reaches ≈63% of the way; after ~5τ it's basically full. That single number is the heartbeat we'll turn into a blink.</div>
+
+<!-- ============ 5. LESSON 2 : INVERTER ============ -->
+<h2 id="l2">5. Lesson 2 — The Inverter (NOT + Schmitt trigger)</h2>
+<p>An inverter flips its input: feed it LOW (0&nbsp;V), it outputs HIGH (3&nbsp;V), and vice-versa. Our tile uses a <strong>Schmitt-trigger</strong> inverter, which adds a crucial twist: it doesn't switch at a single voltage. It waits until the input climbs past an <em>upper</em> threshold before flipping down, and doesn't flip back up until the input falls below a <em>lower</em> threshold. That gap (hysteresis) is what lets a slow, drifting RC voltage produce a clean, snappy square wave.</p>
+
+<div class="two">
+<figure>
+<svg viewBox="0 0 340 210" role="img" aria-label="Inverter symbol and Schmitt hysteresis">
+  <text x="170" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">Schmitt inverter ▷o—</text>
+  <path d="M110 70 L110 140 L180 105 Z" fill="#F4F8FF" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M128 98 h12 v10 h12" fill="none" stroke="#0052CC" stroke-width="2"/>
+  <path d="M128 112 h12 v-10 h12" fill="none" stroke="#0052CC" stroke-width="2"/>
+  <circle cx="188" cy="105" r="7" fill="#fff" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="70" y1="105" x2="110" y2="105" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="66" y="100" text-anchor="end" font-size="12" font-weight="700">IN</text>
+  <line x1="195" y1="105" x2="235" y2="105" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="242" y="110" font-size="12" font-weight="700">OUT</text>
+  <text x="145" y="170" text-anchor="middle" font-size="11.5" fill="#5E6C84">OUT = NOT(IN)</text>
+</svg>
+<figcaption>The little hysteresis glyph inside the triangle marks it as a Schmitt type.</figcaption>
+</figure>
+
+<table class="truth">
+  <caption>Table 5 · Inverter truth (with Schmitt thresholds @ 3&nbsp;V)</caption>
+  <thead><tr><th>Input IN</th><th>Output OUT</th><th>LED (via R2)</th></tr></thead>
+  <tbody>
+    <tr><td>LOW (&lt; 1.0&nbsp;V)</td><td class="pos">HIGH (3&nbsp;V)</td><td>💡 on</td></tr>
+    <tr><td>HIGH (&gt; 1.6&nbsp;V)</td><td class="neg">LOW (0&nbsp;V)</td><td>⚫ off</td></tr>
+    <tr><td>in between</td><td class="mid">holds last state</td><td>— (hysteresis)</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="panel tip"><div class="lab">✅ Why Schmitt matters here</div>Without hysteresis, a slowly-rising RC voltage would make the output chatter/buzz right at the threshold. The upper/lower gap forces a clean, decisive flip — turning a lazy curve into a crisp on/off.</div>
+
+<!-- ============ 6. LESSON 3 : BLINKER ============ -->
+<h2 id="l3">6. Lesson 3 — The 1-Second Blinker</h2>
+<p>Now combine them into a single-inverter <strong>astable oscillator</strong> — exactly the classic Schmitt-trigger blinker. Feed the inverter's output <em>back</em> to its own input through <strong>R1</strong>, and hang <strong>C1</strong> on the input. The cap charges through R1 until it crosses the upper threshold → the inverter flips LOW → now the cap discharges through R1 until it crosses the lower threshold → flips HIGH again. Forever. The very same output also drives the red LED straight through <strong>R2</strong>, so the LED is simply a window onto the oscillator's square wave.</p>
+
+<h3 id="l3-sch">6.1 Schematic (single inverter)</h3>
+<figure>
+<svg viewBox="0 0 640 360" role="img" aria-label="Single Schmitt inverter oscillator driving an LED through R2">
+  <!-- feedback R1 across the top -->
+  <line x1="110" y1="200" x2="110" y2="66" stroke="#6554C0" stroke-width="2.5"/>
+  <line x1="110" y1="66" x2="205" y2="66" stroke="#6554C0" stroke-width="2.5"/>
+  <polyline points="205,66 213,58 227,74 241,58 255,74 269,58 283,74 291,66" fill="none" stroke="#6554C0" stroke-width="2.5"/>
+  <line x1="291" y1="66" x2="380" y2="66" stroke="#6554C0" stroke-width="2.5"/>
+  <line x1="380" y1="66" x2="380" y2="200" stroke="#6554C0" stroke-width="2.5"/>
+  <text x="248" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#6554C0">R1 120kΩ (feedback)</text>
+
+  <!-- inverter -->
+  <path d="M210 165 L210 235 L292 200 Z" fill="#F4F8FF" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M228 193 h11 v9 h11 M228 207 h11 v-9 h11" fill="none" stroke="#0052CC" stroke-width="1.6"/>
+  <circle cx="300" cy="200" r="8" fill="#fff" stroke="#172B4D" stroke-width="2.5"/>
+  <!-- IN wire + node -->
+  <line x1="110" y1="200" x2="210" y2="200" stroke="#172B4D" stroke-width="2.5"/>
+  <circle cx="110" cy="200" r="4.5" fill="#0052CC"/>
+  <text x="96" y="194" text-anchor="end" font-size="11.5" font-weight="700" fill="#0747A6">IN</text>
+  <!-- OUT wire + node -->
+  <line x1="308" y1="200" x2="380" y2="200" stroke="#172B4D" stroke-width="2.5"/>
+  <circle cx="380" cy="200" r="4.5" fill="#6554C0"/>
+  <text x="388" y="195" font-size="11.5" font-weight="700" fill="#403294">OUT</text>
+
+  <!-- VDD pin up -->
+  <line x1="250" y1="165" x2="250" y2="120" stroke="#DE350B" stroke-width="2.5"/>
+  <polygon points="250,110 245,122 255,122" fill="#DE350B"/>
+  <text x="250" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="#DE350B">VDD +3V</text>
+  <!-- GND pin down to rail -->
+  <line x1="250" y1="235" x2="250" y2="315" stroke="#172B4D" stroke-width="2.5"/>
+
+  <!-- C1 from IN to rail -->
+  <line x1="110" y1="200" x2="110" y2="258" stroke="#FF991F" stroke-width="2.5"/>
+  <line x1="88" y1="258" x2="132" y2="258" stroke="#FF991F" stroke-width="3.5"/>
+  <line x1="88" y1="270" x2="132" y2="270" stroke="#FF991F" stroke-width="3.5"/>
+  <line x1="110" y1="270" x2="110" y2="315" stroke="#FF991F" stroke-width="2.5"/>
+  <text x="80" y="240" text-anchor="end" font-size="11.5" font-weight="700" fill="#B8620F">C1 10µF</text>
+  <text x="80" y="256" text-anchor="end" font-size="12" font-weight="700" fill="#B8620F">+</text>
+
+  <!-- R2 + LED from OUT to rail -->
+  <line x1="380" y1="200" x2="410" y2="200" stroke="#172B4D" stroke-width="2.5"/>
+  <polyline points="410,200 418,192 432,208 446,192 460,208 474,192 482,200" fill="none" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="482" y1="200" x2="520" y2="200" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="446" y="184" text-anchor="middle" font-size="11.5" font-weight="700" fill="#172B4D">R2 330Ω</text>
+  <line x1="520" y1="200" x2="520" y2="236" stroke="#172B4D" stroke-width="2.5"/>
+  <polygon points="506,236 534,236 520,260" fill="#DE350B" stroke="#DE350B"/>
+  <line x1="506" y1="262" x2="534" y2="262" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M536 244 l9 -7 M540 251 l9 -7" stroke="#DE350B" stroke-width="1.6"/>
+  <text x="548" y="250" font-size="11.5" font-weight="700" fill="#DE350B">LED</text>
+  <line x1="520" y1="262" x2="520" y2="315" stroke="#172B4D" stroke-width="2.5"/>
+
+  <!-- GND rail -->
+  <line x1="90" y1="315" x2="545" y2="315" stroke="#172B4D" stroke-width="3"/>
+  <text x="551" y="319" font-size="11" font-weight="700" fill="#172B4D">GND</text>
+</svg>
+<figcaption>Your topology: one Schmitt inverter, R1 feedback, C1 timing, and the LED driven directly off the output through R2. Five components — the smallest circuit that blinks.</figcaption>
+</figure>
+<div class="panel tip"><div class="lab">✅ Why direct-drive is fine</div>The 74LVC1G14 has a strong push-pull output (sources/sinks tens of mA), so hanging the LED on it barely moves the output voltage — the feedback through R1 still sees a clean 0&nbsp;V / 3&nbsp;V swing and the timing stays put. That's why we could drop the buffer stage and match your sketch exactly.</div>
+
+<h3 id="l3-grid">6.2 Tile floorplan — mirrors the schematic</h3>
+<p>Here is that exact schematic rebuilt as tiles. Components keep their schematic positions; <strong>straight, elbow, and T wire-tiles</strong> carry the nets between them. Trace it against the schematic above — the feedback loop runs across the top, C1 hangs bottom-left, R2→LED drops down the right, just like on paper.</p>
+<figure>
+<svg viewBox="0 0 780 520" role="img" aria-label="Schematic-faithful tile floorplan of the blinker on a grid">
+  <style>
+    .cell{fill:#F4F8FF;stroke:#0052CC;stroke-width:2;rx:10}
+    .w{fill:none;stroke:#172B4D;stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round}
+    .fb{fill:none;stroke:#6554C0;stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round}
+    .lab{font-size:11.5px;font-weight:700;fill:#172B4D;text-anchor:middle}
+    .tt{font-size:20px;text-anchor:middle}
+    .sm{font-size:10px;fill:#5E6C84;text-anchor:middle}
+  </style>
+  <!-- rails -->
+  <line x1="60" y1="40" x2="720" y2="40" stroke="#DE350B" stroke-width="3"/>
+  <text x="726" y="44" font-size="11" font-weight="700" fill="#DE350B">+3V</text>
+  <line x1="60" y1="486" x2="720" y2="486" stroke="#172B4D" stroke-width="3"/>
+  <text x="726" y="490" font-size="11" font-weight="700" fill="#172B4D">GND</text>
+
+  <!-- CR2032 tall tile -->
+  <rect x="60" y="70" width="96" height="380" rx="12" class="cell"/>
+  <text x="108" y="250" class="tt">🔋</text>
+  <text x="108" y="278" class="lab">CR2032</text>
+  <text x="108" y="294" class="sm">3V power tile</text>
+  <line x1="108" y1="70" x2="108" y2="40" stroke="#DE350B" stroke-width="4.5"/>
+  <line x1="108" y1="450" x2="108" y2="486" stroke="#172B4D" stroke-width="4.5"/>
+
+  <!-- ===== signal grid: A=176 B=284 C=392 D=500 E=608 ; rows R1y=70 R2y=200 R3y=330 ; w=100 h=116 ===== -->
+  <!-- (A,R1) elbow down+right -->
+  <rect x="176" y="70" width="100" height="116" rx="10" class="cell"/>
+  <polyline points="226,186 226,128 276,128" class="fb"/>
+  <!-- (B,R1) R1 resistor -->
+  <rect x="284" y="70" width="100" height="116" rx="10" class="cell"/>
+  <line x1="284" y1="128" x2="300" y2="128" class="fb"/>
+  <polyline points="300,128 308,120 322,136 336,120 350,136 364,120 368,128" fill="none" stroke="#6554C0" stroke-width="4.5"/>
+  <line x1="368" y1="128" x2="384" y2="128" class="fb"/>
+  <text x="334" y="164" class="lab" fill="#6554C0">R1 120kΩ</text>
+  <!-- (C,R1) elbow left+down -->
+  <rect x="392" y="70" width="100" height="116" rx="10" class="cell"/>
+  <polyline points="392,128 442,128 442,186" class="fb"/>
+
+  <!-- (A,R2) T up+down+right : IN node -->
+  <rect x="176" y="200" width="100" height="116" rx="10" class="cell"/>
+  <line x1="226" y1="200" x2="226" y2="316" class="w"/>
+  <line x1="226" y1="258" x2="276" y2="258" class="w"/>
+  <circle cx="226" cy="258" r="6" fill="#0052CC"/>
+  <text x="205" y="238" font-size="11" font-weight="700" fill="#0747A6">IN</text>
+  <!-- feedback arrives at IN top (purple over slate) -->
+  <line x1="226" y1="200" x2="226" y2="228" class="fb"/>
+  <!-- (B,R2) inverter -->
+  <rect x="284" y="200" width="100" height="116" rx="10" class="cell"/>
+  <path d="M300 226 L300 290 L366 258 Z" fill="#fff" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M315 250 h9 v8 h9 M315 262 h9 v-8 h9" fill="none" stroke="#0052CC" stroke-width="1.5"/>
+  <circle cx="374" cy="258" r="6" fill="#fff" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="284" y1="258" x2="300" y2="258" class="w"/>
+  <line x1="380" y1="258" x2="384" y2="258" class="w"/>
+  <text x="334" y="304" class="sm">inverter</text>
+  <!-- VDD pin (labeled, not routed) -->
+  <line x1="334" y1="226" x2="334" y2="212" stroke="#DE350B" stroke-width="3"/>
+  <polygon points="334,205 330,214 338,214" fill="#DE350B"/>
+  <text x="352" y="222" font-size="9.5" font-weight="700" fill="#DE350B">+3V</text>
+  <!-- GND pin down -->
+  <line x1="334" y1="290" x2="334" y2="316" stroke="#172B4D" stroke-width="3"/>
+  <!-- (C,R2) T up+left+right : OUT node -->
+  <rect x="392" y="200" width="100" height="116" rx="10" class="cell"/>
+  <line x1="392" y1="258" x2="492" y2="258" class="w"/>
+  <line x1="442" y1="258" x2="442" y2="200" class="fb"/>
+  <circle cx="442" cy="258" r="6" fill="#6554C0"/>
+  <text x="454" y="238" font-size="11" font-weight="700" fill="#403294">OUT</text>
+  <!-- (D,R2) R2 resistor -->
+  <rect x="500" y="200" width="100" height="116" rx="10" class="cell"/>
+  <line x1="500" y1="258" x2="508" y2="258" class="w"/>
+  <polyline points="508,258 516,250 530,266 544,250 558,266 572,250 584,266 592,258" fill="none" stroke="#172B4D" stroke-width="4.5"/>
+  <line x1="592" y1="258" x2="600" y2="258" class="w"/>
+  <text x="550" y="296" class="lab">R2 330Ω</text>
+  <!-- (E,R2) elbow left+down -->
+  <rect x="608" y="200" width="100" height="116" rx="10" class="cell"/>
+  <polyline points="608,258 658,258 658,316" class="w"/>
+
+  <!-- (A,R3) C1 -->
+  <rect x="176" y="330" width="100" height="116" rx="10" class="cell"/>
+  <line x1="226" y1="330" x2="226" y2="372" class="w"/>
+  <line x1="206" y1="372" x2="246" y2="372" stroke="#FF991F" stroke-width="4.5"/>
+  <line x1="206" y1="384" x2="246" y2="384" stroke="#FF991F" stroke-width="4.5"/>
+  <line x1="226" y1="384" x2="226" y2="446" class="w"/>
+  <line x1="226" y1="446" x2="226" y2="486" class="w"/>
+  <text x="226" y="416" class="lab" fill="#B8620F">C1 10µF</text>
+  <!-- (B,R3) straight (inverter GND run) -->
+  <rect x="284" y="330" width="100" height="116" rx="10" class="cell"/>
+  <line x1="334" y1="330" x2="334" y2="446" class="w"/>
+  <line x1="334" y1="446" x2="334" y2="486" class="w"/>
+  <text x="334" y="466" class="sm">GND wire</text>
+  <!-- (E,R3) LED -->
+  <rect x="608" y="330" width="100" height="116" rx="10" class="cell"/>
+  <line x1="658" y1="330" x2="658" y2="352" class="w"/>
+  <polygon points="646,352 670,352 658,374" fill="#DE350B"/>
+  <line x1="646" y1="376" x2="670" y2="376" stroke="#172B4D" stroke-width="3"/>
+  <line x1="658" y1="376" x2="658" y2="446" class="w"/>
+  <line x1="658" y1="446" x2="658" y2="486" class="w"/>
+  <text x="658" y="416" class="lab" fill="#DE350B">LED</text>
+
+  <!-- legend -->
+  <g transform="translate(64,60)">
+    <circle cx="6" cy="0" r="5" fill="#0052CC"/><text x="16" y="4" font-size="10.5">IN / Vc</text>
+    <circle cx="86" cy="0" r="5" fill="#6554C0"/><text x="96" y="4" font-size="10.5">OUT (feedback)</text>
+  </g>
+</svg>
+<figcaption>The five components sit where the schematic puts them; elbow, straight, and T wire-tiles carry the nets so the built patch reads like the drawing. +3&nbsp;V / GND are the outer rails fed by the CR2032 tile — shown lightly so the signal paths stay clear (each tile also taps them through its top/bottom edges).</figcaption>
+</figure>
+
+<h3 id="l3-wave">6.3 What you'll see (waveform)</h3>
+<figure>
+<svg viewBox="0 0 720 250" role="img" aria-label="Timing waveforms of capacitor voltage, oscillator output, and LED">
+  <text x="16" y="40" font-size="11" font-weight="700" fill="#0052CC">Vc</text>
+  <line x1="60" y1="20" x2="60" y2="70" stroke="#ccc"/>
+  <line x1="60" y1="70" x2="700" y2="70" stroke="#ccc"/>
+  <line x1="60" y1="30" x2="700" y2="30" stroke="#DE350B" stroke-dasharray="3 3" stroke-width="1"/>
+  <text x="704" y="33" font-size="9" fill="#DE350B">VT+</text>
+  <line x1="60" y1="55" x2="700" y2="55" stroke="#36B37E" stroke-dasharray="3 3" stroke-width="1"/>
+  <text x="704" y="58" font-size="9" fill="#006644">VT−</text>
+  <path d="M60 55 Q120 30 180 30 Q240 55 300 55 Q360 30 420 30 Q480 55 540 55 Q600 30 660 30" fill="none" stroke="#0052CC" stroke-width="2.5"/>
+
+  <text x="16" y="120" font-size="11" font-weight="700" fill="#6554C0">OUT</text>
+  <polyline points="60,140 180,140 180,95 300,95 300,140 420,140 420,95 540,95 540,140 660,140"
+    fill="none" stroke="#6554C0" stroke-width="2.5"/>
+
+  <text x="16" y="200" font-size="11" font-weight="700" fill="#DE350B">LED</text>
+  <polyline points="60,175 180,175 180,220 300,220 300,175 420,175 420,220 540,220 540,175 660,175"
+    fill="none" stroke="#DE350B" stroke-width="2.5"/>
+  <g font-size="18">
+    <text x="115" y="215">💡</text><text x="235" y="215">⚫</text><text x="355" y="215">💡</text><text x="475" y="215">⚫</text><text x="595" y="215">💡</text>
+  </g>
+  <line x1="180" y1="235" x2="420" y2="235" stroke="#172B4D" stroke-width="1.5"/>
+  <line x1="180" y1="231" x2="180" y2="239" stroke="#172B4D" stroke-width="1.5"/>
+  <line x1="420" y1="231" x2="420" y2="239" stroke="#172B4D" stroke-width="1.5"/>
+  <text x="300" y="248" text-anchor="middle" font-size="11" font-weight="700">one full period ≈ 1.0 s</text>
+</svg>
+<figcaption>The cap voltage ramps between the two Schmitt thresholds; the output snaps into a square wave; the LED is on whenever OUT is HIGH — one on-off cycle per second.</figcaption>
+</figure>
+
+<h3 id="l3-math">6.4 Timing math — why it's 1 second</h3>
+<p>For a Schmitt-inverter RC oscillator at supply <code>V</code>, the period is <code>T = R1·C1·[ln((V−VT−)/(V−VT+)) + ln(VT+/VT−)]</code>. Plugging in the 74LVC1G14's typical thresholds at 3&nbsp;V (VT+≈1.6&nbsp;V, VT−≈1.0&nbsp;V):</p>
+<table>
+  <caption>Table 6 · Period budget (R1 = 120&nbsp;kΩ, C1 = 10&nbsp;µF, V = 3&nbsp;V)</caption>
+  <thead><tr><th>Quantity</th><th>Expression</th><th class="center">Value</th></tr></thead>
+  <tbody>
+    <tr><td>Time constant τ</td><td><code>R1·C1</code></td><td class="num cool">1.20 s</td></tr>
+    <tr><td>Charge factor</td><td><code>ln((3−1.0)/(3−1.6))</code></td><td class="num pur">0.357</td></tr>
+    <tr><td>Discharge factor</td><td><code>ln(1.6/1.0)</code></td><td class="num pur">0.470</td></tr>
+    <tr><td>Sum of factors</td><td><code>k</code></td><td class="num mid">0.827</td></tr>
+    <tr><td><strong>Period T</strong></td><td><code>τ · k</code></td><td class="num pos">≈ 0.99 s</td></tr>
+    <tr><td>Blink rate</td><td><code>1 / T</code></td><td class="num cool">≈ 1.0 Hz</td></tr>
+  </tbody>
+</table>
+<div class="panel tip"><div class="lab">🎚️ Tuning</div>Want it faster or slower? Change one tile. Halving R1 to <code>62&nbsp;kΩ</code> ≈ half a second per blink; doubling C1 to <code>22&nbsp;µF</code> ≈ two seconds. Period scales linearly with both R1 and C1 — that's the whole lesson. R2 only sets LED brightness (smaller = brighter), never the timing.</div>
+<div class="panel warn"><div class="lab">⚠️ Real-world caveat</div>Coin-cell thresholds drift with temperature and chip batch, so expect ±20%. If your blink lands at 0.8&nbsp;s, swap the 120&nbsp;kΩ R1 for a 150&nbsp;kΩ tile. This tolerance is exactly why we designed for a "round" 1&nbsp;Hz rather than a precise clock.</div>
+
+<!-- ============ 7. BOM ============ -->
+<h2 id="bom">7. Bill of Materials</h2>
+<p>Eleven tiles, about <strong>$3.83</strong> in parts. The pie shows where the cost goes; the table ranks each line and bars the extended cost.</p>
+
+<div class="two">
+<figure>
+<svg viewBox="0 0 260 260" role="img" aria-label="Pie chart of BOM cost share">
+  <path d="M130 130 L130 30 A100 100 0 1 1 116.3 229.0 Z" fill="#0052CC"/>
+  <path d="M130 130 L116.3 229.0 A100 100 0 0 1 39.8 173.2 Z" fill="#6554C0"/>
+  <path d="M130 130 L39.8 173.2 A100 100 0 0 1 35.7 96.8 Z" fill="#36B37E"/>
+  <path d="M130 130 L35.7 96.8 A100 100 0 0 1 62.6 56.2 Z" fill="#B7602F"/>
+  <path d="M130 130 L62.6 56.2 A100 100 0 0 1 97.6 35.4 Z" fill="#FF991F"/>
+  <path d="M130 130 L97.6 35.4 A100 100 0 0 1 130 30 Z" fill="#DE350B"/>
+  <circle cx="130" cy="130" r="46" fill="#fff"/>
+  <text x="130" y="124" text-anchor="middle" font-size="15" font-weight="800" fill="#172B4D">$3.83</text>
+  <text x="130" y="142" text-anchor="middle" font-size="10" fill="#5E6C84">total parts</text>
+</svg>
+<figcaption>Cost share by tile line — the battery and the single inverter are still most of it.</figcaption>
+</figure>
+<div>
+<div class="legend" style="justify-content:flex-start;flex-direction:column;align-items:flex-start;gap:7px;margin-top:20px">
+  <span><span class="sw" style="background:#0052CC"></span> 🔋 Power / CR2032 — 52.2%</span>
+  <span><span class="sw" style="background:#6554C0"></span> 🚫 Inverter ×1 — 15.7%</span>
+  <span><span class="sw" style="background:#36B37E"></span> 🧵 Wire-tiles ×6 — 12.5%</span>
+  <span><span class="sw" style="background:#B7602F"></span> 🟫 Resistors ×2 — 7.8%</span>
+  <span><span class="sw" style="background:#FF991F"></span> ⚡ Capacitor — 6.5%</span>
+  <span><span class="sw" style="background:#DE350B"></span> 💡 LED — 5.2%</span>
+</div>
+</div>
+</div>
+
+<table>
+  <caption>Table 7 · Bill of materials — ranked by extended cost</caption>
+  <thead><tr>
+    <th class="rank">Rank</th><th>Tile</th><th class="center">Qty</th><th class="num">Unit</th><th class="num">Ext. cost</th><th>Share</th>
+  </tr></thead>
+  <tbody>
+    <tr><td class="rank r1">#1</td><td><span class="ic">🔋</span> Power tile (CR2032)</td><td class="center">1</td><td class="num">$2.00</td><td class="num cool">$2.00</td>
+      <td><div class="barwrap"><span class="bar" style="width:160px;background:#0052CC"></span></div></td></tr>
+    <tr><td class="rank r2">#2</td><td><span class="ic">🚫</span> Inverter tile (74LVC1G14)</td><td class="center">1</td><td class="num">$0.60</td><td class="num pur">$0.60</td>
+      <td><div class="barwrap"><span class="bar" style="width:48px;background:#6554C0"></span></div></td></tr>
+    <tr><td class="rank r3">#3</td><td><span class="ic">🧵</span> Wire-tiles (straight/elbow/T)</td><td class="center">6</td><td class="num">$0.08</td><td class="num pos">$0.48</td>
+      <td><div class="barwrap"><span class="bar" style="width:38px;background:#36B37E"></span></div></td></tr>
+    <tr><td class="rank">#4</td><td><span class="ic">🟫</span> Resistor tiles (120kΩ, 330Ω)</td><td class="center">2</td><td class="num">$0.15</td><td class="num">$0.30</td>
+      <td><div class="barwrap"><span class="bar" style="width:24px;background:#B7602F"></span></div></td></tr>
+    <tr><td class="rank">#5</td><td><span class="ic">⚡</span> Capacitor tile (10µF)</td><td class="center">1</td><td class="num">$0.25</td><td class="num mid">$0.25</td>
+      <td><div class="barwrap"><span class="bar" style="width:20px;background:#FF991F"></span></div></td></tr>
+    <tr><td class="rank">#6</td><td><span class="ic">💡</span> LED tile (bare red)</td><td class="center">1</td><td class="num">$0.20</td><td class="num neg">$0.20</td>
+      <td><div class="barwrap"><span class="bar" style="width:16px;background:#DE350B"></span></div></td></tr>
+    <tr style="font-weight:800"><td></td><td>Total</td><td class="center">11 tiles</td><td class="num">—</td><td class="num cool">$3.83</td>
+      <td><div class="barwrap"><span class="bar" style="width:306px;background:linear-gradient(90deg,#0052CC,#36B37E)"></span></div></td></tr>
+  </tbody>
+</table>
+<div class="panel note"><div class="lab">🧾 Note</div>Prices are illustrative per-tile component estimates (bare parts, hobby quantities) — they don't include the 3D-printed tile shells, magnets, or contact pads, which are shared across every tile in the system.</div>
+
+<!-- ============ 8. BUILD ============ -->
+<h2 id="build">8. Build It — step by step</h2>
+<ol class="steps">
+  <li><strong>Lay the power rails.</strong> Place the 🔋 Power tile at the left edge. Its N edge is +3&nbsp;V (top rail), its S edge is GND (bottom rail). Every tile downstream taps these two through its own top/bottom edges.</li>
+  <li><strong>Drop the inverter.</strong> Snap 🚫 the inverter into the center so its +V/GND edges meet the rails. Its IN edge faces left, OUT faces right.</li>
+  <li><strong>Wrap the RC.</strong> Build the feedback loop across the top with an 🔄 elbow → 🟫 R1 (120&nbsp;kΩ) → 🔄 elbow back down to OUT. Put a ⑂ T-tile at IN and at OUT to tie in the three wires. Hang ⚡ C1 (10&nbsp;µF) from the IN T down to the GND rail.</li>
+  <li><strong>Route to the LED.</strong> From the OUT T, go right through 🟫 R2 (330&nbsp;Ω) → 🔄 elbow → down into the 💡 LED tile, whose − edge lands on the GND rail.</li>
+  <li><strong>Power up.</strong> Drop the CR2032 into the holder (text side = +, up). Within a second the LED starts its steady ~1&nbsp;Hz blink. 🎉</li>
+  <li><strong>Play.</strong> Pop 🟫 R1 and swap in 62&nbsp;kΩ to blink twice as fast, or a 22&nbsp;µF ⚡ C1 to slow it down. Swap R2 smaller for a brighter LED. Same floorplan, new rhythm.</li>
+</ol>
+
+<!-- ============ 9. TROUBLE ============ -->
+<h2 id="trouble">9. Troubleshooting</h2>
+<table>
+  <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td>🚫 LED never lights</td><td>Coin cell dead / in backwards, or a gap in the +V or GND rail</td><td>Re-seat the battery (text side = +, up), press every tile firmly until magnets click</td></tr>
+    <tr><td>💡 LED on steady, no blink</td><td>R1 feedback or C1 timing tile not making contact, or a T-tile flipped</td><td>Confirm R1 links OUT↔IN, C1 reaches GND, and each T-tile ties all three of its edges</td></tr>
+    <tr><td>⚡ Blinks way too fast/slow</td><td>Threshold spread on this chip/temperature</td><td>Swap R1 up (slower) or down (faster) one step; ±20% is normal</td></tr>
+    <tr><td>🟥 Dim / flickery light</td><td>Blue/white LED (3&nbsp;V forward drop too high), or R2 too large</td><td>Use a <strong>red, yellow, or green</strong> LED; drop R2 toward 220&nbsp;Ω for more brightness</td></tr>
+    <tr><td>🔥 A tile gets warm</td><td>Two power edges shorted, or R2 missing so the LED sees the full output</td><td>Remove battery, verify no + edge touches − and that R2 sits between OUT and the LED</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 10. NEXT ============ -->
+<h2 id="next">10. Next Steps &amp; the GitHub repo</h2>
+<p>This page is the seed for the project's docs. When you're ready to put it on GitHub and link it from <code>borenw.github.io</code>, a clean starting layout is:</p>
+<table>
+  <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>README.md</code></td><td>Project pitch, photo, link to the live guide</td></tr>
+    <tr><td><code>docs/index.html</code></td><td>This build guide (GitHub Pages serves it)</td></tr>
+    <tr><td><code>hardware/</code></td><td>Tile shell STLs, contact-pad footprints, magnet spec, wire-tile set</td></tr>
+    <tr><td><code>schematics/</code></td><td>KiCad / images of each tile and the blinker</td></tr>
+    <tr><td><code>LICENSE</code></td><td>e.g. CERN-OHL for hardware + MIT for docs</td></tr>
+  </tbody>
+</table>
+<div class="panel info"><div class="lab">🔗 Linking from borenw.github.io</div>Once the repo has GitHub Pages enabled (Settings → Pages → <code>docs/</code> folder), it publishes at <code>https://&lt;user&gt;.github.io/magtile-circuits/</code>. Add a card/link on your <code>borenw.github.io</code> index pointing there. Say the word and I'll generate the full repo folder — README, this <code>index.html</code>, and the exact <code>git</code> / <code>gh</code> commands to create and publish it.</div>
+
+<div class="foot">
+  🧩 <strong>MagTile Circuits</strong> · Edu Playground · Mock-up build guide · 24 Jul 2026<br>
+  Circuit: single 74LVC1G14 Schmitt-trigger RC oscillator (R1=120&nbsp;kΩ, C1=10&nbsp;µF) driving a red LED through R2=330&nbsp;Ω on a 3&nbsp;V CR2032 · target ≈1&nbsp;Hz. Values are a starting point — expect ±20% and tune with one tile swap.
+  <br><a href="https://borenw.github.io/">Page 37 · Bo's Engineering Curriculum</a> · <a href="#top">↑ back to top</a>
+</div>
+
+</div>
+</body>
+</html>
