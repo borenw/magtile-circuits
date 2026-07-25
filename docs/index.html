@@ -121,7 +121,13 @@
     <li><a href="#bom">7. Bill of Materials</a></li>
     <li><a href="#build">8. Build It — step by step</a></li>
     <li><a href="#trouble">9. Troubleshooting</a></li>
-    <li><a href="#next">10. Next Steps &amp; the GitHub repo</a></li>
+    <li><a href="#projects">10. Projects — challenges to try</a>
+      <ul>
+        <li><a href="#proj1">10.1 Let's make it bright</a></li>
+        <li><a href="#proj2">10.2 Be a time master</a></li>
+      </ul>
+    </li>
+    <li><a href="#next">11. Next Steps &amp; the GitHub repo</a></li>
   </ul>
 </nav>
 
@@ -742,7 +748,142 @@
 </table>
 
 <!-- ============ 10. NEXT ============ -->
-<h2 id="next">10. Next Steps &amp; the GitHub repo</h2>
+<!-- ============ 10. PROJECTS ============ -->
+<h2 id="projects">10. Projects — challenges to try</h2>
+<p>Two open-ended builds. Each has a <strong>Part 1</strong> you snap together straight from the catalog, and a <strong>Part 2</strong> challenge with a hint — try it on the tiles before you peek at the answer.</p>
+
+<!-- ---------- PROJECT 1 ---------- -->
+<h3 id="proj1">🔦 Project 1 — Let's make it bright</h3>
+<p><strong>Part 1 · Build the simplest light.</strong> Snap the 🔋 CR2032 power tile straight to an 💡 <strong>LED tile with a built-in current-limit resistor</strong> (the light-emitting diode — no separate R2 needed, the resistor is baked in). Close the loop back to GND and the LED glows. That's the whole circuit: battery → LED → battery.</p>
+<figure>
+<svg viewBox="0 0 520 200" role="img" aria-label="Battery driving a single LED tile with a built-in current-limit resistor">
+  <rect x="20" y="60" width="120" height="80" rx="10" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+  <text x="80" y="96" text-anchor="middle" font-size="18">🔋</text>
+  <text x="80" y="120" text-anchor="middle" font-size="11" font-weight="700">CR2032 · 3V</text>
+  <!-- +V wire -->
+  <line x1="140" y1="82" x2="230" y2="82" stroke="#DE350B" stroke-width="3"/>
+  <text x="185" y="74" text-anchor="middle" font-size="10" font-weight="700" fill="#DE350B">+3V</text>
+  <!-- LED tile -->
+  <rect x="230" y="42" width="140" height="116" rx="10" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+  <!-- built-in resistor -->
+  <line x1="248" y1="82" x2="262" y2="82" stroke="#172B4D" stroke-width="2.5"/>
+  <polyline points="262,82 268,74 280,90 292,74 304,90 310,82" fill="none" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="286" y="66" text-anchor="middle" font-size="9.5" fill="#5E6C84">built-in R</text>
+  <!-- LED symbol -->
+  <line x1="310" y1="82" x2="322" y2="82" stroke="#172B4D" stroke-width="2.5"/>
+  <polygon points="322,72 322,92 340,82" fill="#DE350B"/>
+  <line x1="340" y1="70" x2="340" y2="94" stroke="#172B4D" stroke-width="2.5"/>
+  <path d="M344 68 l7 -6 M348 74 l7 -6" stroke="#DE350B" stroke-width="1.6"/>
+  <line x1="340" y1="82" x2="352" y2="82" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="300" y="146" text-anchor="middle" font-size="11" font-weight="700" fill="#DE350B">LED tile (R built in)</text>
+  <!-- GND return -->
+  <line x1="352" y1="82" x2="410" y2="82" stroke="#172B4D" stroke-width="3"/>
+  <line x1="410" y1="82" x2="410" y2="176" stroke="#172B4D" stroke-width="3"/>
+  <line x1="80" y1="140" x2="80" y2="176" stroke="#172B4D" stroke-width="3"/>
+  <line x1="80" y1="176" x2="410" y2="176" stroke="#172B4D" stroke-width="3"/>
+  <text x="245" y="192" text-anchor="middle" font-size="10" font-weight="700" fill="#172B4D">GND return</text>
+</svg>
+<figcaption>The starter circuit: one battery, one self-contained LED tile. Now — how much brighter can you make it?</figcaption>
+</figure>
+<ol class="steps">
+  <li>Place the 🔋 power tile and the 💡 LED tile side by side.</li>
+  <li>Run a wire-tile from +3&nbsp;V into the LED tile, and the LED's other edge back to the GND rail.</li>
+  <li>It lights. Note how bright it is — that's your baseline to beat.</li>
+</ol>
+<div class="panel note"><div class="lab">🎯 Part 2 · Challenge — make it brighter</div>Same LED, more light. What can you add or rearrange? <em>Hint: think about giving the LED more push (voltage), or more LEDs doing the work.</em></div>
+<div class="two">
+  <div class="panel tip"><div class="lab">✅ Two moves that work</div>
+    <strong>1. Double the battery.</strong> Stack a second CR2032 in <em>series</em> (6&nbsp;V). More voltage across the built-in resistor → more current → the LED burns brighter.<br>
+    <strong>2. LEDs in parallel.</strong> Add a second LED tile side-by-side across the <em>same</em> +3&nbsp;V and GND. Each still gets the full 3&nbsp;V and full brightness, so you get twice the total light.</div>
+  <div class="panel warn"><div class="lab">⚠️ The trap — LEDs in series</div>Chaining two LED tiles <em>in series</em> makes it <strong>dimmer or dark</strong>, not brighter. Each red LED eats ~1.8–2&nbsp;V, so two in a row need ~4&nbsp;V — more than the 3&nbsp;V cell can give. The current collapses and the light dies. Series shares the voltage; it doesn't add light.</div>
+</div>
+<figure>
+<svg viewBox="0 0 520 180" role="img" aria-label="Parallel LEDs stay bright while series LEDs go dim on a 3 volt cell">
+  <!-- parallel -->
+  <text x="130" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="#006644">Parallel ✅ brighter</text>
+  <line x1="40" y1="45" x2="220" y2="45" stroke="#DE350B" stroke-width="2.5"/>
+  <line x1="40" y1="140" x2="220" y2="140" stroke="#172B4D" stroke-width="2.5"/>
+  <g>
+    <line x1="90" y1="45" x2="90" y2="70" stroke="#172B4D" stroke-width="2"/>
+    <polygon points="80,70 100,70 90,88" fill="#DE350B"/><line x1="80" y1="90" x2="100" y2="90" stroke="#172B4D" stroke-width="2"/>
+    <line x1="90" y1="90" x2="90" y2="140" stroke="#172B4D" stroke-width="2"/>
+    <line x1="170" y1="45" x2="170" y2="70" stroke="#172B4D" stroke-width="2"/>
+    <polygon points="160,70 180,70 170,88" fill="#DE350B"/><line x1="160" y1="90" x2="180" y2="90" stroke="#172B4D" stroke-width="2"/>
+    <line x1="170" y1="90" x2="170" y2="140" stroke="#172B4D" stroke-width="2"/>
+  </g>
+  <text x="130" y="162" text-anchor="middle" font-size="10" fill="#5E6C84">each LED sees the full 3V</text>
+  <!-- series -->
+  <text x="400" y="24" text-anchor="middle" font-size="12" font-weight="800" fill="#974F0C">Series ⚠️ dies</text>
+  <line x1="330" y1="45" x2="470" y2="45" stroke="#DE350B" stroke-width="2.5"/>
+  <line x1="330" y1="140" x2="470" y2="140" stroke="#172B4D" stroke-width="2.5"/>
+  <line x1="400" y1="45" x2="400" y2="58" stroke="#172B4D" stroke-width="2"/>
+  <polygon points="390,58 410,58 400,76" fill="#B7602F"/><line x1="390" y1="78" x2="410" y2="78" stroke="#172B4D" stroke-width="2"/>
+  <line x1="400" y1="78" x2="400" y2="92" stroke="#172B4D" stroke-width="2"/>
+  <polygon points="390,92 410,92 400,110" fill="#B7602F"/><line x1="390" y1="112" x2="410" y2="112" stroke="#172B4D" stroke-width="2"/>
+  <line x1="400" y1="112" x2="400" y2="140" stroke="#172B4D" stroke-width="2"/>
+  <text x="400" y="162" text-anchor="middle" font-size="10" fill="#974F0C">~4V needed &gt; 3V available</text>
+</svg>
+<figcaption>Two LEDs across the same rails (left) each shine at full brightness; two LEDs stacked in series (right) starve on a 3&nbsp;V cell. Voltage <em>adds</em> in series — which is why <em>batteries</em> in series help but <em>LEDs</em> in series hurt.</figcaption>
+</figure>
+
+<!-- ---------- PROJECT 2 ---------- -->
+<h3 id="proj2">🕰️ Project 2 — Be a time master</h3>
+<p>Bend a second to your will. This is the full blinker from Lesson 3 — the RC oscillator <em>is</em> your Time Stone.</p>
+<figure>
+<svg viewBox="0 0 360 300" role="img" aria-label="Stylized sorcerer casting glowing circular time-spell glyphs — original homage to a time-bending sorcerer">
+  <defs>
+    <radialGradient id="ts-glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#36B37E" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#36B37E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="0" width="360" height="300" rx="8" fill="#0B1B34"/>
+  <circle cx="180" cy="128" r="96" fill="url(#ts-glow2)"/>
+  <g fill="none" stroke="#FFAB00" stroke-linecap="round">
+    <circle cx="180" cy="128" r="92" stroke="#36B37E" stroke-width="2" stroke-dasharray="3 7"/>
+    <circle cx="180" cy="128" r="78" stroke-width="1.5" stroke-opacity="0.9"/>
+    <circle cx="180" cy="128" r="62" stroke="#7CF0BD" stroke-width="2" stroke-dasharray="14 6"/>
+    <circle cx="180" cy="128" r="44" stroke-width="1.5"/>
+  </g>
+  <g stroke="#FFD98A" stroke-width="2">
+    <line x1="180" y1="52" x2="180" y2="62"/><line x1="180" y1="194" x2="180" y2="204"/>
+    <line x1="104" y1="128" x2="114" y2="128"/><line x1="246" y1="128" x2="256" y2="128"/>
+    <line x1="126" y1="74" x2="133" y2="81"/><line x1="227" y1="175" x2="234" y2="182"/>
+    <line x1="234" y1="74" x2="227" y2="81"/><line x1="133" y1="175" x2="126" y2="182"/>
+  </g>
+  <path d="M180 96 A32 32 0 1 0 212 128" fill="none" stroke="#36B37E" stroke-width="3.5" stroke-linecap="round"/>
+  <polygon points="176,88 190,96 176,104" fill="#36B37E"/>
+  <text x="180" y="133" text-anchor="middle" font-size="13" font-weight="800" fill="#7CF0BD">τ</text>
+  <g>
+    <path d="M150 300 L150 214 Q150 178 180 172 Q210 178 210 214 L210 300 Z" fill="#DE350B"/>
+    <path d="M150 214 L132 300 L150 300 Z" fill="#B7280A"/>
+    <path d="M210 214 L228 300 L210 300 Z" fill="#B7280A"/>
+    <path d="M164 186 Q180 200 196 186 L196 196 Q180 210 164 196 Z" fill="#8F1F07"/>
+    <circle cx="180" cy="168" r="14" fill="#2B2016"/>
+    <path d="M167 164 q4 -8 13 -8" stroke="#C9CDD6" stroke-width="2" fill="none"/>
+    <path d="M164 200 Q150 176 168 150" stroke="#DE350B" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M196 200 Q210 176 192 150" stroke="#DE350B" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <circle cx="168" cy="150" r="5" fill="#E7B98A"/>
+    <circle cx="192" cy="150" r="5" fill="#E7B98A"/>
+  </g>
+  <text x="180" y="290" text-anchor="middle" font-size="10.5" fill="#9FB3D1" font-style="italic">bending a second to your will</text>
+</svg>
+<figcaption>Original illustration — a nod to a certain time-bending sorcerer, not the film image.</figcaption>
+</figure>
+<ol class="steps">
+  <li><strong>Part 1 · Cast the 1-second spell.</strong> Build the Lesson&nbsp;3 blinker: inverter with 🟫 R1&nbsp;=&nbsp;120&nbsp;kΩ feedback and ⚡ C1&nbsp;=&nbsp;10&nbsp;µF, LED off the output through R2. Power up and confirm the LED blinks about <strong>once per second</strong> — count "one-Mississippi" per on-off.</li>
+  <li><strong>Verify your timing.</strong> One full on→off→on should take ~1.0&nbsp;s. If it's off, that's normal ±20% — you'll fix it in the challenge.</li>
+</ol>
+<div class="panel note"><div class="lab">🎯 Part 2 · Challenge — make it blink faster</div>Speed time up: get the LED blinking <strong>twice as fast</strong> (about 2 blinks per second). <em>Hint: the period is set by <code>τ = R1 × C1</code> — so which one tile do you shrink?</em></div>
+<div class="panel tip"><div class="lab">✅ Answer — shrink R1 <em>or</em> C1</div>Period scales straight with both: <code>T ∝ R1 · C1</code>. Halve <strong>either</strong> tile and the blink doubles in speed.
+  <ul>
+    <li>Swap <strong>R1</strong> 120&nbsp;kΩ → <strong>62&nbsp;kΩ</strong> → ~0.5&nbsp;s per blink (2&nbsp;Hz).</li>
+    <li>Or swap <strong>C1</strong> 10&nbsp;µF → <strong>4.7&nbsp;µF</strong> → same effect.</li>
+  </ul>
+  Want it slower instead? Go the other way — bigger R1 or C1 stretches the second out. (R2 only sets LED brightness, never the speed.)</div>
+
+<!-- ============ 11. NEXT ============ -->
+<h2 id="next">11. Next Steps &amp; the GitHub repo</h2>
 <p>This page is the seed for the project's docs. When you're ready to put it on GitHub and link it from <code>borenw.github.io</code>, a clean starting layout is:</p>
 <table>
   <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
