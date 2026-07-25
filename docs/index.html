@@ -594,6 +594,59 @@
 
 <h3 id="l3-math">6.4 Timing math — why it's 1 second</h3>
 <p>For a Schmitt-inverter RC oscillator at supply <code>V</code>, the period is <code>T = R1·C1·[ln((V−VT−)/(V−VT+)) + ln(VT+/VT−)]</code>. Plugging in the 74LVC1G14's typical thresholds at 3&nbsp;V (VT+≈1.6&nbsp;V, VT−≈1.0&nbsp;V):</p>
+
+<figure>
+<svg viewBox="0 0 360 300" role="img" aria-label="Stylized sorcerer casting glowing circular time-spell glyphs — an homage to bending time, standing in for the RC that sets the 1-second period">
+  <defs>
+    <radialGradient id="ts-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#36B37E" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#36B37E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="0" width="360" height="300" rx="8" fill="#0B1B34"/>
+  <!-- outer time glyph glow -->
+  <circle cx="180" cy="128" r="96" fill="url(#ts-glow)"/>
+  <!-- concentric spell rings, hands-forward mandala -->
+  <g fill="none" stroke="#FFAB00" stroke-linecap="round">
+    <circle cx="180" cy="128" r="92" stroke="#36B37E" stroke-width="2" stroke-dasharray="3 7"/>
+    <circle cx="180" cy="128" r="78" stroke-width="1.5" stroke-opacity="0.9"/>
+    <circle cx="180" cy="128" r="62" stroke="#7CF0BD" stroke-width="2" stroke-dasharray="14 6"/>
+    <circle cx="180" cy="128" r="44" stroke-width="1.5"/>
+  </g>
+  <!-- rune ticks around a ring -->
+  <g stroke="#FFD98A" stroke-width="2">
+    <line x1="180" y1="52" x2="180" y2="62"/><line x1="180" y1="194" x2="180" y2="204"/>
+    <line x1="104" y1="128" x2="114" y2="128"/><line x1="246" y1="128" x2="256" y2="128"/>
+    <line x1="126" y1="74" x2="133" y2="81"/><line x1="227" y1="175" x2="234" y2="182"/>
+    <line x1="234" y1="74" x2="227" y2="81"/><line x1="133" y1="175" x2="126" y2="182"/>
+  </g>
+  <!-- reversed-time arrow inside -->
+  <path d="M180 96 A32 32 0 1 0 212 128" fill="none" stroke="#36B37E" stroke-width="3.5" stroke-linecap="round"/>
+  <polygon points="176,88 190,96 176,104" fill="#36B37E"/>
+  <text x="180" y="133" text-anchor="middle" font-size="13" font-weight="800" fill="#7CF0BD">τ</text>
+
+  <!-- sorcerer silhouette (Cloak of Levitation in red) -->
+  <g>
+    <!-- cloak body -->
+    <path d="M150 300 L150 214 Q150 178 180 172 Q210 178 210 214 L210 300 Z" fill="#DE350B"/>
+    <path d="M150 214 L132 300 L150 300 Z" fill="#B7280A"/>
+    <path d="M210 214 L228 300 L210 300 Z" fill="#B7280A"/>
+    <!-- collar -->
+    <path d="M164 186 Q180 200 196 186 L196 196 Q180 210 164 196 Z" fill="#8F1F07"/>
+    <!-- head -->
+    <circle cx="180" cy="168" r="14" fill="#2B2016"/>
+    <!-- greying temples nod -->
+    <path d="M167 164 q4 -8 13 -8" stroke="#C9CDD6" stroke-width="2" fill="none"/>
+    <!-- raised arms toward the glyph -->
+    <path d="M164 200 Q150 176 168 150" stroke="#DE350B" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M196 200 Q210 176 192 150" stroke="#DE350B" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <circle cx="168" cy="150" r="5" fill="#E7B98A"/>
+    <circle cx="192" cy="150" r="5" fill="#E7B98A"/>
+  </g>
+  <text x="180" y="290" text-anchor="middle" font-size="10.5" fill="#9FB3D1" font-style="italic">bending a second to your will</text>
+</svg>
+<figcaption>An RC does its own kind of time magic: <code>τ = R1·C1</code> is the knob that <em>slows or speeds the clock</em>. Change one tile and the whole blink bends with it. <span style="color:var(--sub)">(Original illustration — a nod to a certain time-bending sorcerer, not the film image.)</span></figcaption>
+</figure>
 <table>
   <caption>Table 6 · Period budget (R1 = 120&nbsp;kΩ, C1 = 10&nbsp;µF, V = 3&nbsp;V)</caption>
   <thead><tr><th>Quantity</th><th>Expression</th><th class="center">Value</th></tr></thead>
