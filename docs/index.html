@@ -104,6 +104,7 @@
         <li><a href="#tile-edge">2.1 Each edge is a wire</a></li>
         <li><a href="#tile-poly">2.2 Polarity keying (you can't wire it wrong)</a></li>
         <li><a href="#tile-route">2.3 Routing tiles — straight, elbow, T</a></li>
+        <li><a href="#tile-layers">2.4 Power delivery — the 2-layer VCC plane</a></li>
       </ul>
     </li>
     <li><a href="#catalog">3. Tile Catalog</a></li>
@@ -211,6 +212,78 @@
 </figure>
 <div class="panel note"><div class="lab">💬 Design call — flag for you</div>I added the <strong>T-tile</strong> because the blinker's IN node (inverter input + feedback + capacitor) and OUT node (inverter output + feedback + R2) each join three wires, which a straight/elbow can't do. If you'd rather keep the set to just straight + elbow, we can instead let those 3-way nodes happen <em>on a component tile's own edge</em> — say hello and I'll rework the floorplan that way.</div>
 
+<h3 id="tile-layers">2.4 Power delivery — the 2-layer VCC plane</h3>
+<p>Here's the catch a single layer can't dodge: the inverter needs <strong>four</strong> nets — <code>IN</code>, <code>OUT</code>, <code>+V</code>, <code>GND</code> — but on a real grid its <em>north edge mates with whatever tile sits directly above it</em>. In the blinker that neighbor is <strong>R1</strong> (the feedback resistor), not a power rail. So "+V just taps the top edge" quietly breaks: the top edge is already carrying feedback. Any tile with an active part hits the same wall — you run out of free edges the moment power has to share the border with a signal.</p>
+<p>The fix is to <strong>split power onto its own layer</strong>. Keep the signal circuit on <strong>Layer 1</strong>; drop the battery and a two-rail <strong>VCC / GND plane</strong> onto <strong>Layer 2</strong> underneath. A short <strong>VCC rail tile</strong> on Layer 1 sits above the inverter and hands +V to its <em>top edge</em> through the ordinary edge-to-edge magnet contact — and that rail tile is fed from below by a <strong>vertical via</strong> down into the Layer-2 VCC plane. GND arrives the same way from the bottom edge. Power now reaches every tile from the plane below instead of fighting signals for border space, and the battery leaves the signal floorplan entirely.</p>
+
+<figure>
+<svg viewBox="0 0 780 380" role="img" aria-label="Two-layer power delivery: signal layer on top, battery and VCC/GND plane below, with a via feeding VCC to the inverter's top edge">
+  <!-- ===== Panel A: plan view of Layer 1 ===== -->
+  <text x="185" y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">Layer 1 (plan view) — VCC hits the top edge</text>
+  <!-- VCC rail tile -->
+  <rect x="130" y="44" width="110" height="52" rx="10" fill="#FFEBE6" stroke="#DE350B" stroke-width="2.5"/>
+  <text x="185" y="68" text-anchor="middle" font-size="12" font-weight="800" fill="#DE350B">VCC rail</text>
+  <text x="185" y="85" text-anchor="middle" font-size="10" fill="#974F0C">via down ↓ to Layer 2</text>
+  <!-- inverter tile -->
+  <rect x="130" y="120" width="110" height="110" rx="10" fill="#F4F8FF" stroke="#0052CC" stroke-width="2.5"/>
+  <path d="M150 150 L150 200 L200 175 Z" fill="#fff" stroke="#172B4D" stroke-width="2"/>
+  <circle cx="207" cy="175" r="5.5" fill="#fff" stroke="#172B4D" stroke-width="2"/>
+  <text x="185" y="222" text-anchor="middle" font-size="11" font-weight="700">inverter</text>
+  <!-- shared top edge = +V -->
+  <line x1="130" y1="108" x2="240" y2="108" stroke="#DE350B" stroke-width="5"/>
+  <text x="252" y="112" font-size="10.5" font-weight="700" fill="#DE350B">+V (top edge)</text>
+  <!-- IN / OUT edge stubs -->
+  <line x1="104" y1="175" x2="130" y2="175" stroke="#172B4D" stroke-width="3"/>
+  <text x="100" y="171" text-anchor="end" font-size="10.5" font-weight="700" fill="#0747A6">IN</text>
+  <line x1="240" y1="175" x2="266" y2="175" stroke="#172B4D" stroke-width="3"/>
+  <text x="270" y="179" font-size="10.5" font-weight="700" fill="#403294">OUT</text>
+  <!-- GND rail tile -->
+  <rect x="130" y="254" width="110" height="52" rx="10" fill="#F4F5F7" stroke="#172B4D" stroke-width="2.5"/>
+  <text x="185" y="278" text-anchor="middle" font-size="12" font-weight="800" fill="#172B4D">GND rail</text>
+  <text x="185" y="295" text-anchor="middle" font-size="10" fill="#5E6C84">via down ↓ to Layer 2</text>
+  <line x1="130" y1="242" x2="240" y2="242" stroke="#172B4D" stroke-width="5"/>
+  <text x="252" y="246" font-size="10.5" font-weight="700" fill="#172B4D">GND (bottom edge)</text>
+
+  <!-- divider -->
+  <line x1="370" y1="40" x2="370" y2="330" stroke="#DFE1E6" stroke-width="1.5" stroke-dasharray="5 4"/>
+
+  <!-- ===== Panel B: side cross-section ===== -->
+  <text x="575" y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">Side cross-section — power lives below</text>
+  <!-- Layer 1 band -->
+  <rect x="420" y="70" width="320" height="72" rx="8" fill="#F4F8FF" stroke="#0052CC" stroke-width="2"/>
+  <text x="432" y="60" font-size="11" font-weight="800" fill="#0052CC">Layer 1 · signal</text>
+  <rect x="446" y="82" width="70" height="48" rx="6" fill="#FFEBE6" stroke="#DE350B" stroke-width="2"/>
+  <text x="481" y="110" text-anchor="middle" font-size="10.5" font-weight="800" fill="#DE350B">VCC</text>
+  <rect x="524" y="82" width="86" height="48" rx="6" fill="#fff" stroke="#172B4D" stroke-width="2"/>
+  <text x="567" y="110" text-anchor="middle" font-size="10.5" font-weight="700">inverter</text>
+  <rect x="618" y="82" width="70" height="48" rx="6" fill="#F4F5F7" stroke="#172B4D" stroke-width="2"/>
+  <text x="653" y="110" text-anchor="middle" font-size="10.5" font-weight="800" fill="#172B4D">GND</text>
+
+  <!-- Layer 2 band -->
+  <rect x="420" y="238" width="320" height="72" rx="8" fill="#FFFAE6" stroke="#FFAB00" stroke-width="2"/>
+  <text x="432" y="326" font-size="11" font-weight="800" fill="#974F0C">Layer 2 · battery + VCC / GND plane</text>
+  <text x="470" y="268" font-size="16">🔋</text>
+  <text x="470" y="292" text-anchor="middle" font-size="9.5" fill="#5E6C84">CR2032</text>
+  <line x1="500" y1="258" x2="712" y2="258" stroke="#DE350B" stroke-width="5"/>
+  <text x="716" y="262" font-size="10" font-weight="700" fill="#DE350B">VCC</text>
+  <line x1="500" y1="288" x2="712" y2="288" stroke="#172B4D" stroke-width="5"/>
+  <text x="716" y="292" font-size="10" font-weight="700" fill="#172B4D">GND</text>
+
+  <!-- vias -->
+  <rect x="474" y="130" width="14" height="128" rx="3" fill="#DE350B"/>
+  <text x="452" y="188" text-anchor="end" font-size="10" font-weight="700" fill="#DE350B">VCC via</text>
+  <rect x="646" y="130" width="14" height="158" rx="3" fill="#172B4D"/>
+  <text x="700" y="176" font-size="10" font-weight="700" fill="#172B4D">GND via</text>
+
+  <!-- current arrow -->
+  <path d="M481 82 V 70" stroke="#36B37E" stroke-width="0" />
+  <text x="575" y="160" text-anchor="middle" font-size="10" fill="#006644" font-weight="700">+V climbs the via → the inverter's top edge</text>
+</svg>
+<figcaption>Left: on Layer 1 the inverter takes IN/OUT on its side edges while a <strong>VCC rail tile</strong> and <strong>GND rail tile</strong> hand power to its top and bottom edges. Right: those rail tiles are fed by short <strong>vertical vias</strong> down to the battery-driven VCC/GND plane on Layer 2 — so power is delivered from below and never competes with signal routing.</figcaption>
+</figure>
+<div class="panel tip"><div class="lab">✅ Why 2 layers earns its keep</div>Any tile with an <em>active</em> part (an inverter today, a flip-flop or a full logic tile tomorrow) needs more edges than a flat grid can spare once its neighbors carry signal. A dedicated power plane hands every tile a clean +V and GND from underneath, so the top layer is free to look exactly like the schematic. It also makes the battery a swappable second-layer module instead of an edge tile you have to route around.</div>
+<div class="panel note"><div class="lab">💬 Design call — flag for you</div>I fed VCC to the inverter's <strong>top edge</strong> via a rail tile (your sketch), which keeps the familiar edge-to-edge contact. The alternative is a <strong>bottom-face contact</strong>: give each tile a 5th pad on its underside that taps the Layer-2 plane directly, freeing the top/bottom edges for signals too. Edge-rail is simpler to build and reuses one contact type; face-tap is denser but needs a new z-axis pad. Tell me which way to standardize and I'll carry it through the floorplan.</div>
+
 <!-- ============ 3. CATALOG ============ -->
 <h2 id="catalog">3. Tile Catalog</h2>
 <p>Six component tiles plus the three wire-tiles build every circuit in this guide. Each is a 1&times;1 square; the "Connects" column shows which edges the internal copper bridges.</p>
@@ -220,7 +293,9 @@
     <th>Tile</th><th>Symbol</th><th>What it does</th><th>Value used</th><th>Connects (edges)</th>
   </tr></thead>
   <tbody>
-    <tr><td><span class="ic">🔋</span> Power</td><td class="center">CR2032</td><td>Supplies +3&nbsp;V and GND to the whole build via the edge rails</td><td class="num cool">3.0&nbsp;V</td><td>N&nbsp;=&nbsp;+V, S&nbsp;=&nbsp;GND</td></tr>
+    <tr><td><span class="ic">🔋</span> Power</td><td class="center">CR2032</td><td>Supplies +3&nbsp;V and GND — lives on <strong>Layer 2</strong> and feeds the VCC/GND plane (see §2.4)</td><td class="num cool">3.0&nbsp;V</td><td>VCC / GND plane</td></tr>
+    <tr><td><span class="ic">🟥</span> VCC rail</td><td class="center">+V</td><td>Layer-1 tile: pulls +V up from the Layer-2 plane through a via and presents it on an edge (e.g. the inverter's top)</td><td class="num neg">+3&nbsp;V</td><td>via ↕ + 1 edge</td></tr>
+    <tr><td><span class="ic">⬛</span> GND rail</td><td class="center">GND</td><td>Layer-1 tile: same as VCC rail but for the ground return</td><td class="num">0&nbsp;V</td><td>via ↕ + 1 edge</td></tr>
     <tr><td><span class="ic">🚫</span> Inverter</td><td class="center">▷o</td><td>Schmitt-trigger NOT gate — the one active tile; it oscillates and drives the LED</td><td class="num">74LVC1G14</td><td>IN, OUT, +V, GND</td></tr>
     <tr><td><span class="ic">🟫</span> Resistor</td><td class="center">▭</td><td>Two used: <strong>R1</strong> sets the RC timing (feedback), <strong>R2</strong> limits LED current</td><td class="num pur">120&nbsp;kΩ / 330&nbsp;Ω</td><td>W ↔ E</td></tr>
     <tr><td><span class="ic">⚡</span> Capacitor</td><td class="center">⊣⊢</td><td>The timing "tank" — fills and drains through R1</td><td class="num mid">10&nbsp;µF</td><td>W ↔ GND</td></tr>
@@ -230,7 +305,7 @@
     <tr><td><span class="ic">⑂</span> T-junction wire</td><td class="center">├</td><td>Ties three edges together — a routable node</td><td class="num">0&nbsp;Ω</td><td>3 edges</td></tr>
   </tbody>
 </table>
-<div class="panel note"><div class="lab">💡 Design note</div>The inverter tile hides a tiny single-gate chip (74LVC1G14, SOT-23-5). It needs four connections — <code>IN</code>, <code>OUT</code>, <code>+V</code>, <code>GND</code> — which is exactly why a 4-edge square is the smallest tile that can hold an active device. Passive and wire tiles only use two (or, for the T, three) edges.</div>
+<div class="panel note"><div class="lab">💡 Design note</div>The inverter tile hides a tiny single-gate chip (74LVC1G14, SOT-23-5). It needs four connections — <code>IN</code>, <code>OUT</code>, <code>+V</code>, <code>GND</code>. On a single layer that fills all four edges, which is why active tiles run out of room the moment a neighbor needs to carry signal — the motivation for the <a href="#tile-layers">2-layer power plane in §2.4</a>, where <code>+V</code> and <code>GND</code> come from below and leave both side edges free for <code>IN</code>/<code>OUT</code>. Passive and wire tiles only use two (or, for the T, three) edges.</div>
 
 <!-- ============ 4. LESSON 1 : RC ============ -->
 <h2 id="l1">4. Lesson 1 — The RC (charge &amp; discharge)</h2>
@@ -484,7 +559,7 @@
     <circle cx="86" cy="0" r="5" fill="#6554C0"/><text x="96" y="4" font-size="10.5">OUT (feedback)</text>
   </g>
 </svg>
-<figcaption>The five components sit where the schematic puts them; elbow, straight, and T wire-tiles carry the nets so the built patch reads like the drawing. +3&nbsp;V / GND are the outer rails fed by the CR2032 tile — shown lightly so the signal paths stay clear (each tile also taps them through its top/bottom edges).</figcaption>
+<figcaption>The five components sit where the schematic puts them; elbow, straight, and T wire-tiles carry the nets so the built patch reads like the drawing. +3&nbsp;V / GND are shown here as light outer rails so the signal paths stay clear, but they are physically delivered from the <strong>Layer-2 VCC/GND plane</strong> (see §2.4): each tile that needs power gets it from a VCC/GND rail tile via a vertical via, not by competing for a signal edge.</figcaption>
 </figure>
 
 <h3 id="l3-wave">6.3 What you'll see (waveform)</h3>
