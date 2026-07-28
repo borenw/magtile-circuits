@@ -92,6 +92,7 @@
     <span class="chip">🚫 1 × 74LVC1G14 Schmitt</span>
     <span class="chip">🟥 Red LED + R2</span>
     <span class="chip">🧵 Wire-tile routing</span>
+    <span class="chip">🎨 Interactive sandbox</span>
   </div>
 </header>
 
@@ -108,26 +109,27 @@
       </ul>
     </li>
     <li><a href="#catalog">3. Tile Catalog</a></li>
-    <li><a href="#l1">4. Lesson 1 — The RC (charge &amp; discharge)</a></li>
-    <li><a href="#l2">5. Lesson 2 — The Inverter (NOT + Schmitt trigger)</a></li>
-    <li><a href="#l3">6. Lesson 3 — The 1-Second Blinker</a>
+    <li><a href="#sandbox">4. Sandbox — build the circuit yourself 🎨</a></li>
+    <li><a href="#l1">5. Lesson 1 — The RC (charge &amp; discharge)</a></li>
+    <li><a href="#l2">6. Lesson 2 — The Inverter (NOT + Schmitt trigger)</a></li>
+    <li><a href="#l3">7. Lesson 3 — The 1-Second Blinker</a>
       <ul>
-        <li><a href="#l3-sch">6.1 Schematic (single inverter)</a></li>
-        <li><a href="#l3-grid">6.2 Tile floorplan — mirrors the schematic</a></li>
-        <li><a href="#l3-wave">6.3 What you'll see (waveform)</a></li>
-        <li><a href="#l3-math">6.4 Timing math — why it's 1 second</a></li>
+        <li><a href="#l3-sch">7.1 Schematic (single inverter)</a></li>
+        <li><a href="#l3-grid">7.2 Tile floorplan — mirrors the schematic</a></li>
+        <li><a href="#l3-wave">7.3 What you'll see (waveform)</a></li>
+        <li><a href="#l3-math">7.4 Timing math — why it's 1 second</a></li>
       </ul>
     </li>
-    <li><a href="#bom">7. Bill of Materials</a></li>
-    <li><a href="#build">8. Build It — step by step</a></li>
-    <li><a href="#trouble">9. Troubleshooting</a></li>
-    <li><a href="#projects">10. Projects — challenges to try</a>
+    <li><a href="#bom">8. Bill of Materials</a></li>
+    <li><a href="#build">9. Build It — step by step</a></li>
+    <li><a href="#trouble">10. Troubleshooting</a></li>
+    <li><a href="#projects">11. Projects — challenges to try</a>
       <ul>
-        <li><a href="#proj1">10.1 Let's make it bright</a></li>
-        <li><a href="#proj2">10.2 Be a time master</a></li>
+        <li><a href="#proj1">11.1 Let's make it bright</a></li>
+        <li><a href="#proj2">11.2 Be a time master</a></li>
       </ul>
     </li>
-    <li><a href="#next">11. Next Steps &amp; the GitHub repo</a></li>
+    <li><a href="#next">12. Next Steps &amp; the GitHub repo</a></li>
   </ul>
 </nav>
 
@@ -313,8 +315,252 @@
 </table>
 <div class="panel note"><div class="lab">💡 Design note</div>The inverter tile hides a tiny single-gate chip (74LVC1G14, SOT-23-5). It needs four connections — <code>IN</code>, <code>OUT</code>, <code>+V</code>, <code>GND</code>. On a single layer that fills all four edges, which is why active tiles run out of room the moment a neighbor needs to carry signal — the motivation for the <a href="#tile-layers">2-layer power plane in §2.4</a>, where <code>+V</code> and <code>GND</code> come from below and leave both side edges free for <code>IN</code>/<code>OUT</code>. Passive and wire tiles only use two (or, for the T, three) edges.</div>
 
-<!-- ============ 4. LESSON 1 : RC ============ -->
-<h2 id="l1">4. Lesson 1 — The RC (charge &amp; discharge)</h2>
+<!-- ============ 4. SANDBOX ============ -->
+<h2 id="sandbox">4. Sandbox — build the circuit yourself 🎨</h2>
+<p>Enough reading — snap a real circuit together right here. On the <strong>left</strong> is the schematic to aim for: a battery lighting an LED around a single loop. On the <strong>right</strong> is a live tile canvas. Drag a tile from the tray onto the board (or tap a tile, then tap a cell), and close the loop. The instant current can run all the way around, the 💡 lights up. Stuck? Hit <strong>✨ Show solution</strong> and watch the four tiles fly into place.</p>
+
+<style>
+  .sbx-wrap{display:grid;grid-template-columns:minmax(210px,0.9fr) minmax(300px,1.1fr);gap:20px;align-items:start;margin:18px 0}
+  @media(max-width:760px){.sbx-wrap{grid-template-columns:1fr}}
+  .sbx-ref{margin:0;background:var(--blue-ll);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .sbx-ref svg{width:100%;height:auto;border:none;border-radius:6px;background:#fff}
+  .sbx-ref figcaption{margin-top:8px;color:var(--sub);font-size:12.5px;text-align:center}
+  .sbx-play{background:var(--blue-ll);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .sbx-tray{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px;justify-content:center}
+  .sbx-src{width:60px;padding:5px 3px;border:1.5px solid var(--line);border-radius:9px;background:#fff;cursor:grab;display:flex;flex-direction:column;align-items:center;gap:1px;touch-action:none;user-select:none;transition:transform .1s,box-shadow .1s}
+  .sbx-src:hover{box-shadow:0 3px 9px rgba(9,30,66,.14);transform:translateY(-1px)}
+  .sbx-src.sel{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-l)}
+  .sbx-src .sbx-svg{width:42px;height:42px}
+  .sbx-src .cap{font-size:8.5px;font-weight:700;color:var(--sub);text-align:center;line-height:1.05}
+  .sbx-boardwrap{display:flex;justify-content:center}
+  .sbx-board{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;width:min(100%,318px);background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px}
+  .sbx-cell{position:relative;aspect-ratio:1/1;border:1.5px dashed #cfd8e8;border-radius:9px;background:#FAFBFF;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .sbx-cell.target{border-color:#b9c6de}
+  .sbx-cell.filled{border-style:solid;border-color:var(--blue);background:var(--blue-ll)}
+  .sbx-cell.litcell{border-color:var(--green);background:var(--greenbg)}
+  .sbx-cell.hot{border-color:var(--green);background:var(--greenbg);box-shadow:inset 0 0 0 3px #ABF5D1}
+  .sbx-svg{display:block;width:100%;height:100%;overflow:visible}
+  .cond{stroke:#8895ab;stroke-width:6;stroke-linecap:round;fill:none}
+  .sbx-tile{position:absolute;inset:5px;will-change:transform}
+  .sbx-tile.lit .cond{stroke:var(--green);stroke-width:6.5;stroke-dasharray:8 8;animation:sbxflow .55s linear infinite}
+  @keyframes sbxflow{to{stroke-dashoffset:-16}}
+  .sbx-tile.lit .sbx-emoji.led{filter:drop-shadow(0 0 5px #FFC400)}
+  .sbx-tile.lit .sbx-halo{opacity:.55;animation:sbxpulse 1s ease-in-out infinite}
+  @keyframes sbxpulse{0%,100%{opacity:.25}50%{opacity:.62}}
+  .sbx-del{position:absolute;top:-7px;right:-7px;width:19px;height:19px;border:none;border-radius:50%;background:var(--red);color:#fff;font-size:13px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0}
+  .sbx-tile:hover .sbx-del{display:flex}
+  .sbx-ghost{display:flex;flex-direction:column;align-items:center;opacity:.32;pointer-events:none}
+  .sbx-ghost .sbx-svg{width:62%;height:auto}
+  .sbx-ghost span{font-size:8.5px;font-weight:700;color:var(--sub);margin-top:-3px}
+  .sbx-dragghost{position:fixed;width:60px;height:60px;transform:translate(-50%,-50%);pointer-events:none;z-index:60;filter:drop-shadow(0 5px 11px rgba(9,30,66,.32))}
+  .sbx-dragghost .sbx-svg{width:100%;height:100%}
+  .sbx-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:14px}
+  .sbx-check{font-size:12.5px;font-weight:600;color:var(--sub);display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+  .sbx-btn{border:1.5px solid var(--line);background:#fff;color:var(--ink);font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .sbx-btn:hover{border-color:var(--blue)}
+  .sbx-btn.solve{background:var(--blue);border-color:var(--blue);color:#fff}
+  .sbx-btn.solve:hover{background:var(--blue-d)}
+  .sbx-status{margin-top:12px;font-size:13px;line-height:1.5;text-align:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink)}
+  .sbx-status.ok{background:var(--greenbg);border-color:#ABF5D1;color:#006644}
+  .sbx-status.warn{background:var(--amberbg);border-color:#FFE380;color:#974F0C}
+</style>
+
+<div class="sbx-wrap">
+  <figure class="sbx-ref">
+    <svg viewBox="0 0 300 250" role="img" aria-label="Reference schematic: a coin cell drives an LED around one loop">
+      <text x="150" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="#0747A6">Target circuit</text>
+      <!-- loop wires -->
+      <line x1="60" y1="60" x2="60" y2="118" stroke="#172B4D" stroke-width="3"/>
+      <line x1="60" y1="150" x2="60" y2="200" stroke="#172B4D" stroke-width="3"/>
+      <line x1="60" y1="60" x2="120" y2="60" stroke="#172B4D" stroke-width="3"/>
+      <line x1="120" y1="60" x2="132" y2="60" stroke="#172B4D" stroke-width="3"/>
+      <line x1="154" y1="60" x2="240" y2="60" stroke="#172B4D" stroke-width="3"/>
+      <line x1="240" y1="60" x2="240" y2="200" stroke="#172B4D" stroke-width="3"/>
+      <line x1="60" y1="200" x2="240" y2="200" stroke="#172B4D" stroke-width="3"/>
+      <!-- battery on the left wire -->
+      <line x1="46" y1="122" x2="74" y2="122" stroke="#172B4D" stroke-width="3.5"/>
+      <line x1="53" y1="136" x2="67" y2="136" stroke="#172B4D" stroke-width="8"/>
+      <text x="84" y="120" font-size="13" font-weight="800" fill="#DE350B">+</text>
+      <text x="84" y="146" font-size="14" font-weight="800" fill="#5E6C84">–</text>
+      <text x="28" y="133" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5E6C84">3V</text>
+      <text x="60" y="228" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0747A6">🔋 battery</text>
+      <!-- LED on the top wire, pointing with the current -->
+      <polygon points="132,50 132,70 154,60" fill="#DE350B"/>
+      <line x1="154" y1="47" x2="154" y2="73" stroke="#172B4D" stroke-width="3"/>
+      <path d="M158 44 l8 -7 M163 50 l8 -7" stroke="#DE350B" stroke-width="1.8"/>
+      <text x="150" y="92" text-anchor="middle" font-size="10.5" font-weight="700" fill="#DE350B">💡 LED</text>
+      <!-- clockwise current arrows -->
+      <g fill="#36B37E">
+        <polygon points="196,54 208,60 196,66"/>
+        <polygon points="234,150 240,162 246,150"/>
+        <polygon points="120,206 108,200 120,194"/>
+      </g>
+      <text x="150" y="235" text-anchor="middle" font-size="9.5" fill="#006644" font-weight="700">current flows ↻ around the loop</text>
+    </svg>
+    <figcaption>The target: 🔋 battery&nbsp;→&nbsp;💡 LED&nbsp;→ around through the wires → back to the battery.</figcaption>
+  </figure>
+
+  <div class="sbx-play">
+    <div class="sbx-tray" id="sbxTray"></div>
+    <div class="sbx-boardwrap"><div class="sbx-board" id="sbxBoard"></div></div>
+    <div class="sbx-controls">
+      <label class="sbx-check"><input type="checkbox" id="sbxHints" checked> Show hints</label>
+      <button class="sbx-btn" id="sbxReset" type="button">↺ Reset</button>
+      <button class="sbx-btn solve" id="sbxSolve" type="button">✨ Show solution</button>
+    </div>
+    <div class="sbx-status" id="sbxStatus"></div>
+  </div>
+</div>
+<div class="panel note"><div class="lab">💬 How the board maps to real tiles</div>The top-left cell wants the 🔋 <strong>battery tile</strong> (its <span style="color:var(--red);font-weight:700">+</span> edge faces right toward the LED, <strong>−</strong> faces down), the top-right wants the 💡 <strong>LED tile</strong>, and each bottom cell a ✚ <strong>4-way wire tile</strong> that carries the net across all four of its edges. Together they form the same loop you'd snap on a table. <strong>Tap a tile then a cell</strong> to place it, <strong>drag</strong> from the tray, <strong>click a placed wire</strong> to rotate it, and use the straight/elbow pieces to <em>draw anything</em> you like. The ✕ on a tile removes it.</div>
+
+<script>
+(function(){
+  var ROWS=3, COLS=3, ORDER=['N','E','S','W'];
+  var TILES={
+    battery:{kind:'battery',label:'Battery',edges:['E','S'],internal:false},
+    led:{kind:'led',label:'LED',edges:['W','S'],internal:false},
+    wire4:{kind:'wire',label:'4-way wire',edges:['N','E','S','W'],internal:true},
+    straight:{kind:'wire',label:'Straight',edges:['N','S'],internal:true},
+    elbow:{kind:'wire',label:'Elbow',edges:['N','E'],internal:true}
+  };
+  var SOLUTION=[{r:0,c:0,type:'battery'},{r:0,c:1,type:'led'},{r:1,c:0,type:'wire4'},{r:1,c:1,type:'wire4'}];
+  var TRAY=['battery','led','wire4','straight','elbow'];
+
+  var board=document.getElementById('sbxBoard'), tray=document.getElementById('sbxTray');
+  var statusEl=document.getElementById('sbxStatus'), hints=document.getElementById('sbxHints');
+  var solveBtn=document.getElementById('sbxSolve'), resetBtn=document.getElementById('sbxReset');
+
+  var grid=[], cells=[];
+  for(var ir=0;ir<ROWS;ir++){ grid[ir]=[]; cells[ir]=[]; for(var ic=0;ic<COLS;ic++) grid[ir][ic]=null; }
+  var litSet=new Set(), sel=null;
+
+  function activeEdges(t){ var b=TILES[t.type].edges, rot=t.rot||0; return b.map(function(d){ return ORDER[(ORDER.indexOf(d)+rot)%4]; }); }
+  function targetType(r,c){ for(var i=0;i<SOLUTION.length;i++){ if(SOLUTION[i].r===r&&SOLUTION[i].c===c) return SOLUTION[i].type; } return null; }
+  function edgeLines(edges){ var P={N:[50,6],E:[94,50],S:[50,94],W:[6,50]}; return edges.map(function(d){ return '<line class="cond" x1="50" y1="50" x2="'+P[d][0]+'" y2="'+P[d][1]+'"/>'; }).join(''); }
+  function svgFor(type,rot){
+    var def=TILES[type], edges=activeEdges({type:type,rot:rot}), glyph='', extra='';
+    if(def.kind==='battery'){
+      glyph='<text class="sbx-emoji" x="50" y="63" text-anchor="middle" font-size="30">🔋</text>';
+      extra='<text x="86" y="41" text-anchor="middle" font-size="17" font-weight="800" fill="#DE350B">+</text><text x="38" y="93" text-anchor="middle" font-size="19" font-weight="800" fill="#5E6C84">–</text>';
+    } else if(def.kind==='led'){
+      glyph='<circle class="sbx-halo" cx="50" cy="50" r="24" fill="#FFD34D" opacity="0"/><text class="sbx-emoji led" x="50" y="63" text-anchor="middle" font-size="30">💡</text>';
+    } else { glyph='<circle cx="50" cy="50" r="6" fill="#334155"/>'; }
+    return '<svg viewBox="0 0 100 100" class="sbx-svg">'+edgeLines(edges)+glyph+extra+'</svg>';
+  }
+
+  function evaluate(){
+    var parent={};
+    function find(x){ if(parent[x]===undefined)parent[x]=x; return parent[x]===x?x:(parent[x]=find(parent[x])); }
+    function uni(a,b){ parent[find(a)]=find(b); }
+    function key(r,c,d){ return r+','+c+','+d; }
+    var r,c,i;
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){ var t=grid[r][c]; if(!t)continue; var es=activeEdges(t);
+      for(i=0;i<es.length;i++) find(key(r,c,es[i]));
+      if(TILES[t.type].internal){ for(i=1;i<es.length;i++) uni(key(r,c,es[0]),key(r,c,es[i])); } }
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){ var t2=grid[r][c]; if(!t2)continue; var e1=activeEdges(t2);
+      if(e1.indexOf('E')>=0 && c+1<COLS && grid[r][c+1]){ if(activeEdges(grid[r][c+1]).indexOf('W')>=0) uni(key(r,c,'E'),key(r,c+1,'W')); }
+      if(e1.indexOf('S')>=0 && r+1<ROWS && grid[r+1][c]){ if(activeEdges(grid[r+1][c]).indexOf('N')>=0) uni(key(r,c,'S'),key(r+1,c,'N')); } }
+    var bat=null,led=null,count=0;
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){ var t3=grid[r][c]; if(!t3)continue; count++;
+      if(TILES[t3.type].kind==='battery'&&!bat)bat={r:r,c:c};
+      if(TILES[t3.type].kind==='led'&&!led)led={r:r,c:c}; }
+    var lit=false, shorted=false, ls=new Set();
+    if(bat){
+      var plus=find(key(bat.r,bat.c,'E')), minus=find(key(bat.r,bat.c,'S'));
+      if(plus===minus) shorted=true;
+      if(led && !shorted){ var tA=find(key(led.r,led.c,'W')), tB=find(key(led.r,led.c,'S'));
+        if((tA===plus&&tB===minus)||(tA===minus&&tB===plus)) lit=true; }
+      if(lit){ for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){ var t4=grid[r][c]; if(!t4)continue; var e4=activeEdges(t4), on=false;
+        for(i=0;i<e4.length;i++){ var f=find(key(r,c,e4[i])); if(f===plus||f===minus){on=true;break;} } if(on) ls.add(r+','+c); } }
+    }
+    return {lit:lit,shorted:shorted,litSet:ls,count:count,hasBat:!!bat,hasLed:!!led};
+  }
+
+  function renderCell(r,c){
+    var cell=cells[r][c], t=grid[r][c], tgt=targetType(r,c), on=litSet.has(r+','+c);
+    cell.className='sbx-cell'+(tgt?' target':'')+(t?' filled':'')+(on?' litcell':'');
+    if(t){ cell.innerHTML='<div class="sbx-tile'+(on?' lit':'')+'">'+svgFor(t.type,t.rot)+'<button class="sbx-del" data-r="'+r+'" data-c="'+c+'" aria-label="remove">×</button></div>'; return cell.querySelector('.sbx-tile'); }
+    if(hints.checked && tgt){ cell.innerHTML='<div class="sbx-ghost">'+svgFor(tgt,0)+'<span>'+TILES[tgt].label+'</span></div>'; }
+    else { cell.innerHTML=''; }
+    return null;
+  }
+  function renderAll(){ for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++) renderCell(r,c); }
+
+  function setStatus(res){
+    statusEl.className='sbx-status';
+    if(res.lit){ statusEl.classList.add('ok'); statusEl.innerHTML='⚡ <strong>Circuit closed!</strong> Current runs 🔋&nbsp;→&nbsp;💡 and back through the wires — the LED is lit.'; return; }
+    if(res.shorted){ statusEl.classList.add('warn'); statusEl.innerHTML='⚠️ <strong>Short circuit.</strong> The battery’s + and − are joined with no 💡 in the path — route the loop through the LED.'; return; }
+    if(res.count===0){ statusEl.innerHTML='🎯 <strong>Goal:</strong> close a loop so the 🔋 lights the 💡. Follow the ghost hints — 🔋 top-left, 💡 top-right, a ✚ 4-way wire in each cell below.'; return; }
+    var need=[]; if(!res.hasBat) need.push('a 🔋 battery'); if(!res.hasLed) need.push('a 💡 LED');
+    if(need.length) statusEl.innerHTML='🔌 Keep going — add '+need.join(' and ')+', then close the loop with wire tiles.';
+    else statusEl.innerHTML='🔌 <strong>Almost.</strong> The loop isn’t closed yet — every wire edge must meet a neighbour. Drop a ✚ 4-way wire in each bottom cell to tie 🔋 and 💡 together.';
+  }
+
+  function update(){ var res=evaluate(); litSet=res.litSet; renderAll(); setStatus(res); }
+  function placeTile(r,c,type){ grid[r][c]={type:type,rot:0}; update(); }
+  function removeTile(r,c){ grid[r][c]=null; update(); }
+  function rotateTile(r,c){ var t=grid[r][c]; if(t){ t.rot=((t.rot||0)+1)%4; update(); } }
+  function clearGrid(){ for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++) grid[r][c]=null; }
+  function setSel(type){ sel=(sel===type)?null:type; for(var i=0;i<tray.children.length;i++) tray.children[i].classList.toggle('sel', tray.children[i].dataset.type===sel); }
+
+  TRAY.forEach(function(type){ var s=document.createElement('div'); s.className='sbx-src'; s.dataset.type=type; s.innerHTML=svgFor(type,0)+'<span class="cap">'+TILES[type].label+'</span>'; tray.appendChild(s); });
+  for(var r0=0;r0<ROWS;r0++)for(var c0=0;c0<COLS;c0++){ var d=document.createElement('div'); d.className='sbx-cell'; d.dataset.r=r0; d.dataset.c=c0; board.appendChild(d); cells[r0][c0]=d; }
+
+  function cellUnder(x,y){ var el=document.elementFromPoint(x,y); return el?el.closest('.sbx-cell'):null; }
+  function hot(cell){ for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++) cells[r][c].classList.toggle('hot', cells[r][c]===cell); }
+
+  tray.addEventListener('pointerdown', function(e){
+    var src=e.target.closest('.sbx-src'); if(!src) return; e.preventDefault();
+    var type=src.dataset.type, sx=e.clientX, sy=e.clientY, ghostEl=null, moved=false;
+    function mv(ev){
+      if(!moved && Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>7){ moved=true; ghostEl=document.createElement('div'); ghostEl.className='sbx-dragghost'; ghostEl.innerHTML=svgFor(type,0); document.body.appendChild(ghostEl); }
+      if(ghostEl){ ghostEl.style.left=ev.clientX+'px'; ghostEl.style.top=ev.clientY+'px'; hot(cellUnder(ev.clientX,ev.clientY)); }
+    }
+    function up(ev){
+      document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up);
+      if(ghostEl) ghostEl.remove(); hot(null);
+      if(moved){ var cell=cellUnder(ev.clientX,ev.clientY); if(cell) placeTile(+cell.dataset.r,+cell.dataset.c,type); }
+      else setSel(type);
+    }
+    document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up);
+  });
+
+  board.addEventListener('click', function(e){
+    var del=e.target.closest('.sbx-del'); if(del){ removeTile(+del.dataset.r,+del.dataset.c); return; }
+    var cell=e.target.closest('.sbx-cell'); if(!cell) return;
+    var r=+cell.dataset.r, c=+cell.dataset.c;
+    if(sel){ placeTile(r,c,sel); return; }
+    var t=grid[r][c]; if(t && TILES[t.type].kind==='wire') rotateTile(r,c);
+  });
+
+  hints.addEventListener('change', update);
+  resetBtn.addEventListener('click', function(){ sel=null; setSel(null); clearGrid(); update(); });
+
+  solveBtn.addEventListener('click', function(){
+    sel=null; setSel(null); clearGrid(); litSet=new Set(); renderAll();
+    SOLUTION.forEach(function(s,i){
+      setTimeout(function(){
+        grid[s.r][s.c]={type:s.type,rot:0};
+        var tile=renderCell(s.r,s.c), src=tray.querySelector('.sbx-src[data-type="'+s.type+'"]');
+        if(tile&&src){
+          var a=src.getBoundingClientRect(), b=tile.getBoundingClientRect();
+          var dx=(a.left+a.width/2)-(b.left+b.width/2), dy=(a.top+a.height/2)-(b.top+b.height/2);
+          tile.style.transition='none';
+          tile.style.transform='translate('+dx+'px,'+dy+'px) scale(.35) rotate(-18deg)';
+          tile.style.opacity='0'; tile.getBoundingClientRect();
+          requestAnimationFrame(function(){ tile.style.transition='transform .55s cubic-bezier(.2,.85,.3,1), opacity .35s'; tile.style.transform=''; tile.style.opacity='1'; });
+        }
+        if(i===SOLUTION.length-1) setTimeout(update, 640);
+      }, 140 + i*230);
+    });
+  });
+
+  update();
+})();
+</script>
+
+<!-- ============ 5. LESSON 1 : RC ============ -->
+<h2 id="l1">5. Lesson 1 — The RC (charge &amp; discharge)</h2>
 <p>Before anything blinks, feel how a resistor and capacitor make <em>time</em>. Snap a resistor tile between +3&nbsp;V and a node, and a capacitor tile from that node to GND. The capacitor fills up like a bucket through a narrow straw (the resistor). The bucket voltage doesn't jump — it eases up on a curve.</p>
 
 <div class="two">
@@ -364,7 +610,7 @@
 <code>τ = R × C = 120,000 Ω × 0.000010 F = 1.2 seconds</code>. After one τ the capacitor reaches ≈63% of the way; after ~5τ it's basically full. That single number is the heartbeat we'll turn into a blink.</div>
 
 <!-- ============ 5. LESSON 2 : INVERTER ============ -->
-<h2 id="l2">5. Lesson 2 — The Inverter (NOT + Schmitt trigger)</h2>
+<h2 id="l2">6. Lesson 2 — The Inverter (NOT + Schmitt trigger)</h2>
 <p>An inverter flips its input: feed it LOW (0&nbsp;V), it outputs HIGH (3&nbsp;V), and vice-versa. Our tile uses a <strong>Schmitt-trigger</strong> inverter, which adds a crucial twist: it doesn't switch at a single voltage. It waits until the input climbs past an <em>upper</em> threshold before flipping down, and doesn't flip back up until the input falls below a <em>lower</em> threshold. That gap (hysteresis) is what lets a slow, drifting RC voltage produce a clean, snappy square wave.</p>
 
 <div class="two">
@@ -385,7 +631,7 @@
 </figure>
 
 <table class="truth">
-  <caption>Table 5 · Inverter truth (with Schmitt thresholds @ 3&nbsp;V)</caption>
+  <caption>Table 6 · Inverter truth (with Schmitt thresholds @ 3&nbsp;V)</caption>
   <thead><tr><th>Input IN</th><th>Output OUT</th><th>LED (via R2)</th></tr></thead>
   <tbody>
     <tr><td>LOW (&lt; 1.0&nbsp;V)</td><td class="pos">HIGH (3&nbsp;V)</td><td>💡 on</td></tr>
@@ -397,10 +643,10 @@
 <div class="panel tip"><div class="lab">✅ Why Schmitt matters here</div>Without hysteresis, a slowly-rising RC voltage would make the output chatter/buzz right at the threshold. The upper/lower gap forces a clean, decisive flip — turning a lazy curve into a crisp on/off.</div>
 
 <!-- ============ 6. LESSON 3 : BLINKER ============ -->
-<h2 id="l3">6. Lesson 3 — The 1-Second Blinker</h2>
+<h2 id="l3">7. Lesson 3 — The 1-Second Blinker</h2>
 <p>Now combine them into a single-inverter <strong>astable oscillator</strong> — exactly the classic Schmitt-trigger blinker. Feed the inverter's output <em>back</em> to its own input through <strong>R1</strong>, and hang <strong>C1</strong> on the input. The cap charges through R1 until it crosses the upper threshold → the inverter flips LOW → now the cap discharges through R1 until it crosses the lower threshold → flips HIGH again. Forever. The very same output also drives the red LED straight through <strong>R2</strong>, so the LED is simply a window onto the oscillator's square wave.</p>
 
-<h3 id="l3-sch">6.1 Schematic (single inverter)</h3>
+<h3 id="l3-sch">7.1 Schematic (single inverter)</h3>
 <figure>
 <svg viewBox="0 0 640 360" role="img" aria-label="Single Schmitt inverter oscillator driving an LED through R2">
   <!-- feedback R1 across the top -->
@@ -459,7 +705,7 @@
 </figure>
 <div class="panel tip"><div class="lab">✅ Why direct-drive is fine</div>The 74LVC1G14 has a strong push-pull output (sources/sinks tens of mA), so hanging the LED on it barely moves the output voltage — the feedback through R1 still sees a clean 0&nbsp;V / 3&nbsp;V swing and the timing stays put. That's why we could drop the buffer stage and match your sketch exactly.</div>
 
-<h3 id="l3-grid">6.2 Tile floorplan — mirrors the schematic</h3>
+<h3 id="l3-grid">7.2 Tile floorplan — mirrors the schematic</h3>
 <p>Here is that exact schematic rebuilt as tiles. Components keep their schematic positions; <strong>straight, elbow, and T wire-tiles</strong> carry the nets between them. Trace it against the schematic above — the feedback loop runs across the top, C1 hangs bottom-left, R2→LED drops down the right, just like on paper.</p>
 <figure>
 <svg viewBox="0 0 780 520" role="img" aria-label="Schematic-faithful tile floorplan of the blinker on a grid">
@@ -568,7 +814,7 @@
 <figcaption>The five components sit where the schematic puts them; elbow, straight, and T wire-tiles carry the nets so the built patch reads like the drawing. +3&nbsp;V / GND are shown here as light outer rails so the signal paths stay clear, but they are physically delivered from the <strong>Layer-2 VCC/GND plane</strong> (see §2.4): each tile that needs power gets it from a VCC/GND rail tile via a vertical via, not by competing for a signal edge.</figcaption>
 </figure>
 
-<h3 id="l3-wave">6.3 What you'll see (waveform)</h3>
+<h3 id="l3-wave">7.3 What you'll see (waveform)</h3>
 <figure>
 <svg viewBox="0 0 720 250" role="img" aria-label="Timing waveforms of capacitor voltage, oscillator output, and LED">
   <text x="16" y="40" font-size="11" font-weight="700" fill="#0052CC">Vc</text>
@@ -598,7 +844,7 @@
 <figcaption>The cap voltage ramps between the two Schmitt thresholds; the output snaps into a square wave; the LED is on whenever OUT is HIGH — one on-off cycle per second.</figcaption>
 </figure>
 
-<h3 id="l3-math">6.4 Timing math — why it's 1 second</h3>
+<h3 id="l3-math">7.4 Timing math — why it's 1 second</h3>
 <p>For a Schmitt-inverter RC oscillator at supply <code>V</code>, the period is <code>T = R1·C1·[ln((V−VT−)/(V−VT+)) + ln(VT+/VT−)]</code>. Plugging in the 74LVC1G14's typical thresholds at 3&nbsp;V (VT+≈1.6&nbsp;V, VT−≈1.0&nbsp;V):</p>
 
 <figure>
@@ -654,7 +900,7 @@
 <figcaption>An RC does its own kind of time magic: <code>τ = R1·C1</code> is the knob that <em>slows or speeds the clock</em>. Change one tile and the whole blink bends with it. <span style="color:var(--sub)">(Original illustration — a nod to a certain time-bending sorcerer, not the film image.)</span></figcaption>
 </figure>
 <table>
-  <caption>Table 6 · Period budget (R1 = 120&nbsp;kΩ, C1 = 10&nbsp;µF, V = 3&nbsp;V)</caption>
+  <caption>Table 7 · Period budget (R1 = 120&nbsp;kΩ, C1 = 10&nbsp;µF, V = 3&nbsp;V)</caption>
   <thead><tr><th>Quantity</th><th>Expression</th><th class="center">Value</th></tr></thead>
   <tbody>
     <tr><td>Time constant τ</td><td><code>R1·C1</code></td><td class="num cool">1.20 s</td></tr>
@@ -669,7 +915,7 @@
 <div class="panel warn"><div class="lab">⚠️ Real-world caveat</div>Coin-cell thresholds drift with temperature and chip batch, so expect ±20%. If your blink lands at 0.8&nbsp;s, swap the 120&nbsp;kΩ R1 for a 150&nbsp;kΩ tile. This tolerance is exactly why we designed for a "round" 1&nbsp;Hz rather than a precise clock.</div>
 
 <!-- ============ 7. BOM ============ -->
-<h2 id="bom">7. Bill of Materials</h2>
+<h2 id="bom">8. Bill of Materials</h2>
 <p>Eleven tiles, about <strong>$3.83</strong> in parts. The pie shows where the cost goes; the table ranks each line and bars the extended cost.</p>
 
 <div class="two">
@@ -700,7 +946,7 @@
 </div>
 
 <table>
-  <caption>Table 7 · Bill of materials — ranked by extended cost</caption>
+  <caption>Table 8 · Bill of materials — ranked by extended cost</caption>
   <thead><tr>
     <th class="rank">Rank</th><th>Tile</th><th class="center">Qty</th><th class="num">Unit</th><th class="num">Ext. cost</th><th>Share</th>
   </tr></thead>
@@ -724,7 +970,7 @@
 <div class="panel note"><div class="lab">🧾 Note</div>Prices are illustrative per-tile component estimates (bare parts, hobby quantities) — they don't include the 3D-printed tile shells, magnets, or contact pads, which are shared across every tile in the system.</div>
 
 <!-- ============ 8. BUILD ============ -->
-<h2 id="build">8. Build It — step by step</h2>
+<h2 id="build">9. Build It — step by step</h2>
 <ol class="steps">
   <li><strong>Lay the power rails.</strong> Place the 🔋 Power tile at the left edge. Its N edge is +3&nbsp;V (top rail), its S edge is GND (bottom rail). Every tile downstream taps these two through its own top/bottom edges.</li>
   <li><strong>Drop the inverter.</strong> Snap 🚫 the inverter into the center so its +V/GND edges meet the rails. Its IN edge faces left, OUT faces right.</li>
@@ -735,7 +981,7 @@
 </ol>
 
 <!-- ============ 9. TROUBLE ============ -->
-<h2 id="trouble">9. Troubleshooting</h2>
+<h2 id="trouble">10. Troubleshooting</h2>
 <table>
   <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
   <tbody>
@@ -749,7 +995,7 @@
 
 <!-- ============ 10. NEXT ============ -->
 <!-- ============ 10. PROJECTS ============ -->
-<h2 id="projects">10. Projects — challenges to try</h2>
+<h2 id="projects">11. Projects — challenges to try</h2>
 <p>Two open-ended builds. Each has a <strong>Part 1</strong> you snap together straight from the catalog, and a <strong>Part 2</strong> challenge with a hint — try it on the tiles before you peek at the answer.</p>
 
 <!-- ---------- PROJECT 1 ---------- -->
@@ -884,7 +1130,7 @@
   Want it slower instead? Go the other way — bigger R1 or C1 stretches the second out. (R2 only sets LED brightness, never the speed.)</div>
 
 <!-- ============ 11. NEXT ============ -->
-<h2 id="next">11. Next Steps &amp; the GitHub repo</h2>
+<h2 id="next">12. Next Steps &amp; the GitHub repo</h2>
 <p>This page is the seed for the project's docs. When you're ready to put it on GitHub and link it from <code>borenw.github.io</code>, a clean starting layout is:</p>
 <table>
   <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
@@ -899,7 +1145,7 @@
 <div class="panel info"><div class="lab">🔗 Linking from borenw.github.io</div>Once the repo has GitHub Pages enabled (Settings → Pages → <code>docs/</code> folder), it publishes at <code>https://&lt;user&gt;.github.io/magtile-circuits/</code>. Add a card/link on your <code>borenw.github.io</code> index pointing there. Say the word and I'll generate the full repo folder — README, this <code>index.html</code>, and the exact <code>git</code> / <code>gh</code> commands to create and publish it.</div>
 
 <div class="foot">
-  🧩 <strong>MagTile Circuits</strong> · Edu Playground · Mock-up build guide · 24 Jul 2026<br>
+  🧩 <strong>MagTile Circuits</strong> · Edu Playground · Interactive build guide · 28 Jul 2026<br>
   Circuit: single 74LVC1G14 Schmitt-trigger RC oscillator (R1=120&nbsp;kΩ, C1=10&nbsp;µF) driving a red LED through R2=330&nbsp;Ω on a 3&nbsp;V CR2032 · target ≈1&nbsp;Hz. Values are a starting point — expect ±20% and tune with one tile swap.
   <br><a href="https://borenw.github.io/">Page 38 · Bo's Engineering Curriculum</a> · <a href="#top">↑ back to top</a>
 </div>
