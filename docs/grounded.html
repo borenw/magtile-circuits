@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stay Grounded — the touch theremin | MagTile Circuits</title>
+<link rel="stylesheet" href="plate_game.css">
+</head>
+<body class="hint-off">
+<header><div class="wrap">
+  <h1>🎚️ Stay Grounded — the touch theremin</h1>
+  <p>Same oscillator, but the RC node is a <b>touch pad</b> and there’s a <b>ground pad</b>. Your body becomes part of the circuit.</p>
+  <div class="nav"><a href="index.html">← build guide</a><a href="game.html">🕰️ Master of Time</a><a href="bright.html">🔦 Make it bright</a></div>
+</div></header>
+<main class="wrap">
+  <div class="lead"><b>The mission:</b> build the piezo oscillator, but this time R1 is huge (<b>~1 MΩ</b>) and C1 tiny (<b>~1 nF</b>) so the input node is <b>high-impedance</b> — sensitive to your finger. Touch the ✋ node and it adds a little body capacitance; touch it while your other hand references the <b>ground pad</b> and the pitch bends. That’s why engineers say <em>stay grounded</em>: signals only make sense against a common ground.</div>
+  <div id="game"></div>
+</main>
+<footer><div class="wrap">Companion puzzle to the <a href="index.html">MagTile Circuits build guide</a> · <a href="https://borenw.github.io/">Page 38 · Bo's Engineering Curriculum</a></div></footer>
+<script src="plate_game.js"></script>
+<script>
+PlateGame.build(document.getElementById('game'),{
+  rows:3, cols:3, cellPx:112, seed:9, tone:{base:2700},
+  winTitle:'🎚️ Grounded &amp; singing!',
+  winMsg:'High-impedance node + a ground reference = a touch instrument. Hold the pad and slide — more “touch” adds parallel capacitance and drops the pitch, exactly like laying a finger on the real node.',
+  trayNote:'Match each tile to its faint grey square — note the ✋ touch node and the ground pad.',
+  solution:[
+    {e:['bottom','right'],label:'wire'},
+    {e:['left','right'],c:'res',label:'R1 1M'},
+    {e:['left','bottom'],label:'wire'},
+    {e:['top','right','bottom'],c:'cap',touch:true,label:'touch node'},
+    {e:['left','right','bottom'],c:'inv',label:'inverter'},
+    {e:['left','top','bottom'],c:'node',k:'#6554C0',label:'OUT'},
+    {e:['top','right'],c:'gnd',label:'GND pad'},
+    {e:['left','right','top'],c:'node',label:'GND'},
+    {e:['top','left'],c:'piezo',label:'piezo'}
+  ]
+});
+</script>
+</body>
+</html>

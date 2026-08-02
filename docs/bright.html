@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make it Bright — light the LED | MagTile Circuits</title>
+<link rel="stylesheet" href="plate_game.css">
+</head>
+<body class="hint-off">
+<header><div class="wrap">
+  <h1>🔦 Make it Bright — light the LED</h1>
+  <p>The simplest circuit there is: a battery, an LED, and two wires. Close the loop on the 2×2 grid and it glows.</p>
+  <div class="nav"><a href="index.html">← build guide</a><a href="game.html">🕰️ Master of Time</a><a href="grounded.html">🎚️ Stay grounded</a></div>
+</div></header>
+<main class="wrap">
+  <div class="lead"><b>The mission:</b> current has to leave the battery’s <b>＋</b> terminal, pass through the <b>LED</b>, and return to the <b>－</b> terminal — one closed loop. Drop the battery and LED into their squares, then the two elbow wires that finish the ring. No loop, no light.</div>
+  <div id="game"></div>
+</main>
+<footer><div class="wrap">Companion puzzle to the <a href="index.html">MagTile Circuits build guide</a> · <a href="https://borenw.github.io/">Page 38 · Bo's Engineering Curriculum</a></div></footer>
+<script src="plate_game.js"></script>
+<script>
+PlateGame.build(document.getElementById('game'),{
+  rows:2, cols:2, cellPx:130, seed:3, tone:false,
+  winTitle:'💡 It lights!',
+  winMsg:'The loop is closed — battery ＋ → LED → back to －. That is the whole idea of a circuit: current needs a complete path.',
+  trayNote:'Match each tile to its faint grey square. Tap a tile then a square, or drag it.',
+  solution:[
+    {e:['right','bottom'],c:'batt',label:'3V cell'},
+    {e:['left','bottom'],c:'led',label:'LED'},
+    {e:['top','right'],label:'wire'},
+    {e:['top','left'],label:'wire'}
+  ]
+});
+</script>
+</body>
+</html>

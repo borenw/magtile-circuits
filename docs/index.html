@@ -1077,6 +1077,23 @@
 <figcaption>Two LEDs across the same rails (left) each shine at full brightness; two LEDs stacked in series (right) starve on a 3&nbsp;V cell. Voltage <em>adds</em> in series — which is why <em>batteries</em> in series help but <em>LEDs</em> in series hurt.</figcaption>
 </figure>
 
+<!-- ---- Make it bright: plate + game ---- -->
+<figure>
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:center;text-align:left">
+  <a href="make_it_bright_plate.3mf" title="Download the printable 3D plate (.3mf)">
+    <img src="make_it_bright_plate_preview.png" alt="Isometric render of the 2x2 Make it Bright rubbing plate: a battery-and-LED loop in raised relief plus a QR code" style="width:320px;max-width:100%;height:auto;border:none;background:none">
+  </a>
+  <div style="max-width:340px">
+    <h4 style="margin:0 0 8px">🔦 Rubbing plate &amp; matching game</h4>
+    <p style="margin:0 0 10px">A 2×2 <strong>rubbing plate</strong> (~96&nbsp;×&nbsp;140&nbsp;mm): battery&nbsp;→&nbsp;LED&nbsp;→&nbsp;back, in raised relief. Lay paper on top, pencil-rub, and the loop — plus a scannable QR — transfers to the page.</p>
+    <p style="margin:0 0 10px"><a href="bright.html" style="display:inline-block;background:#0052CC;color:#fff;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:10px">▶ Play — light the LED</a></p>
+    <p style="margin:0 0 10px;font-size:14px">⬇ Print it: <a href="make_it_bright_plate.3mf"><strong>plate.3mf</strong></a> · <a href="make_it_bright_plate.stl">.stl</a></p>
+    <p style="margin:0;font-size:13px;color:#5E6C84"><img src="make_it_bright_plate_qr.svg" alt="QR code linking to the Make it Bright game" style="width:96px;height:96px;vertical-align:middle;border:1px solid #DFE3EB;border-radius:6px;background:#fff;padding:3px;margin-right:8px">Scan to play on a phone</p>
+  </div>
+</div>
+<figcaption>Drag-and-drop game: fill the greyed-out 2×2 dashed schematic with the battery, the LED, and two elbow wires. Close the loop and it lights — the same layout the printable plate reproduces in relief.</figcaption>
+</figure>
+
 <!-- ---------- PROJECT 2 ---------- -->
 <h3 id="proj2">🕰️ Project 2 — Be a time master</h3>
 <p>Bend a second to your will. This is the full blinker from Lesson 3 — the RC oscillator <em>is</em> your Time Stone.</p>
@@ -1104,7 +1121,7 @@
     </p>
   </div>
 </div>
-<figcaption>Drag-and-drop game: fill the greyed-out 3×3 dashed schematic with tiles whose sharp black traces match — resistor, capacitor, inverter, wires, buzzer. Close the feedback loop and the oscillator sings. The same 3×3 layout is what the printable plate reproduces in relief.</figcaption>
+<figcaption>Drag-and-drop game: fill the greyed-out 3×3 dashed schematic with tiles whose sharp black traces match — resistor, capacitor, inverter, wires, piezo. Close the feedback loop and the oscillator sings. The same 3×3 layout is what the printable plate reproduces in relief.</figcaption>
 </figure>
 <figure>
 <svg viewBox="0 0 360 300" role="img" aria-label="Stylized sorcerer casting glowing circular time-spell glyphs — original homage to a time-bending sorcerer">
@@ -1158,6 +1175,30 @@
     <li>Or swap <strong>C1</strong> 10&nbsp;µF → <strong>4.7&nbsp;µF</strong> → same effect.</li>
   </ul>
   Want it slower instead? Go the other way — bigger R1 or C1 stretches the second out. (R2 only sets LED brightness, never the speed.)</div>
+
+<!-- ---------- PROJECT 3 ---------- -->
+<h3 id="proj3">🎚️ Project 3 — Stay grounded (touch theremin)</h3>
+<p>Take the oscillator and make it an <strong>instrument you play with your hands</strong>. Keep the same inverter + piezo, but make R1 huge (<strong>~1&nbsp;MΩ</strong>) and C1 tiny (<strong>~1&nbsp;nF</strong>) so the timing node is <em>high-impedance</em> — a few picofarads change the pitch. Add a <strong>touch pad</strong> on that node and a <strong>ground pad</strong> for your other hand.</p>
+<div class="panel note"><div class="lab">🎯 The idea — your body is a capacitor</div>Rest a finger on the ✋ touch node and it adds ~tens of pF of body capacitance; brush the ground pad with the other hand and you close the loop through <em>you</em>. Both shift <code>τ = R1·C1</code>, so the tone bends as you move — a hands-free theremin. It only works when you’re <strong>referenced to ground</strong>: no common ground, no control. That’s the whole lesson — signals are meaningless until they share a ground.</div>
+
+<!-- ---- Stay grounded: plate + game ---- -->
+<figure>
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:center;text-align:left">
+  <a href="stay_grounded_plate.3mf" title="Download the printable 3D plate (.3mf)">
+    <img src="stay_grounded_plate_preview.png" alt="Isometric render of the 3x3 Stay Grounded rubbing plate: a piezo oscillator with a touch node and ground pad in raised relief plus a QR code" style="width:340px;max-width:100%;height:auto;border:none;background:none">
+  </a>
+  <div style="max-width:340px">
+    <h4 style="margin:0 0 8px">🔦 Rubbing plate &amp; matching game</h4>
+    <p style="margin:0 0 10px">A 3×3 <strong>rubbing plate</strong> (~116&nbsp;×&nbsp;160&nbsp;mm): the oscillator with an explicit ✋ <strong>touch node</strong> and <strong>ground pad</strong>. Rub it to transfer the schematic and a scannable QR to paper.</p>
+    <p style="margin:0 0 10px"><a href="grounded.html" style="display:inline-block;background:#0052CC;color:#fff;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:10px">▶ Play — bend the pitch</a></p>
+    <p style="margin:0 0 10px;font-size:14px">⬇ Print it: <a href="stay_grounded_plate.3mf"><strong>plate.3mf</strong></a> · <a href="stay_grounded_plate.stl">.stl</a></p>
+    <p style="margin:0;font-size:13px;color:#5E6C84"><img src="stay_grounded_plate_qr.svg" alt="QR code linking to the Stay Grounded game" style="width:96px;height:96px;vertical-align:middle;border:1px solid #DFE3EB;border-radius:6px;background:#fff;padding:3px;margin-right:8px">Scan to play on a phone</p>
+  </div>
+</div>
+<figcaption>Drag-and-drop game: build the high-impedance oscillator, then hold the pad and slide — your body’s capacitance bends the tone, exactly like touching the real RC node while staying grounded.</figcaption>
+</figure>
+
+<div class="panel tip"><div class="lab">🔊 Driving the piezo</div>A <strong>piezo</strong> element is capacitive (~10–30&nbsp;nF), so the <code>74LVC1G14</code> Schmitt inverter drives it <strong>directly</strong> — no transistor. (An <em>electromagnetic</em> buzzer is a low-impedance coil and would need a small NPN/MOSFET driver + flyback diode.) Loudest near its 2–4&nbsp;kHz resonance, which is exactly where <code>R1≈470&nbsp;kΩ, C1≈1&nbsp;nF</code> puts the tone.</div>
 
 <!-- ============ 11. NEXT ============ -->
 <h2 id="next">12. Next Steps &amp; the GitHub repo</h2>
