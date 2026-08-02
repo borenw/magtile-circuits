@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master of Time — build the oscillator | MagTile Circuits</title>
+<style>
+  :root{
+    --bg:#F7F9FC; --card:#fff; --ink:#172B4D; --sub:#5E6C84;
+    --line:#DFE3EB; --blue:#0052CC; --blueL:#F4F8FF;
+    --purple:#6554C0; --amber:#FF991F; --red:#DE350B; --green:#00875A;
+    --wire:#12233f; --ghost:#C7CDD8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-text-size-adjust:100%}
+  header{background:linear-gradient(135deg,#0747A6,#0052CC);color:#fff;padding:22px 18px}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px}
+  header h1{margin:0 0 4px;font-size:26px;letter-spacing:-.01em}
+  header p{margin:0;opacity:.92;font-size:14.5px}
+  main{padding:20px 0 40px}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:18px 0}
+  .lead b{color:var(--blue)}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0}
+  .bar .grow{flex:1 1 auto}
+  button{font:inherit;font-weight:700;border:1px solid var(--line);background:var(--card);
+    color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--blue);color:var(--blue)}
+  button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  button.primary:hover{background:#0747A6;color:#fff}
+  button[aria-pressed="true"]{background:var(--blueL);border-color:var(--blue);color:var(--blue)}
+  .count{font-weight:800;font-size:15px}
+  .count b{color:var(--green)}
+  .stage{display:grid;grid-template-columns:1fr;gap:22px}
+  @media(min-width:760px){.stage{grid-template-columns:auto 1fr}}
+  /* board */
+  .boardwrap{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;
+    box-shadow:0 1px 3px rgba(9,30,66,.08)}
+  .rails{position:relative}
+  .rail{font-size:11px;font-weight:800;letter-spacing:.03em}
+  .rail.v{color:var(--red)}
+  .rail.g{color:var(--wire);text-align:center;margin-top:6px}
+  #board{display:grid;grid-template-columns:repeat(3,var(--sz));grid-template-rows:repeat(3,var(--sz));
+    gap:6px;--sz:98px}
+  @media(min-width:420px){#board{--sz:112px}}
+  .cell{position:relative;width:var(--sz);height:var(--sz);border:2px dashed var(--line);
+    border-radius:12px;background:#FBFCFE;display:flex;align-items:center;justify-content:center;
+    transition:.15s}
+  .cell svg{width:100%;height:100%;display:block}
+  .cell.drop{border-color:var(--blue);background:var(--blueL);box-shadow:inset 0 0 0 2px var(--blue)}
+  .cell.filled{border:2px solid var(--green);background:#F0FBF6}
+  .cell.bad{animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .cell.filled svg{animation:pop .3s}
+  /* tray */
+  .tray{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .tray h2{margin:0 0 4px;font-size:15px}
+  .tray p{margin:0 0 12px;color:var(--sub);font-size:13px}
+  .tiles{display:flex;flex-wrap:wrap;gap:10px}
+  .tile{width:84px;height:84px;border:1px solid var(--line);border-radius:12px;background:#fff;
+    cursor:grab;touch-action:none;transition:.12s;position:relative;box-shadow:0 1px 2px rgba(9,30,66,.06)}
+  .tile svg{width:100%;height:100%;display:block;pointer-events:none}
+  .tile:hover{border-color:var(--blue);transform:translateY(-2px)}
+  .tile.sel{border-color:var(--blue);box-shadow:0 0 0 3px var(--blueL);transform:translateY(-2px)}
+  .tile.drag{opacity:.4}
+  .tile .nm{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:9px;
+    font-weight:700;color:var(--sub)}
+  .win{display:none;margin-top:18px;padding:16px 18px;border-radius:14px;
+    background:linear-gradient(135deg,#00875A,#00A870);color:#fff}
+  .win.show{display:block;animation:pop .4s}
+  .win h2{margin:0 0 6px;font-size:20px}
+  .win p{margin:0;opacity:.95;font-size:14px}
+  .touchpad{display:none;margin-top:12px;align-items:center;gap:12px}
+  .touchpad.show{display:flex;flex-wrap:wrap}
+  .pad{flex:1 1 220px;min-height:64px;border-radius:12px;border:2px solid #fff3;
+    background:linear-gradient(90deg,#093,#3c6 60%,#fd6);color:#08301c;font-weight:800;
+    display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;
+    touch-action:none;user-select:none;padding:8px}
+  footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0;color:var(--sub);font-size:13px;text-align:center}
+  footer a{color:var(--blue);text-decoration:none}
+  .hint-off .nm{display:none}
+  .drag-ghost{position:fixed;width:84px;height:84px;pointer-events:none;z-index:99;opacity:.9;
+    transform:translate(-50%,-50%)}
+</style>
+</head>
+<body class="hint-off">
+<header><div class="wrap">
+  <h1>🕰️ Master of Time — build the oscillator</h1>
+  <p>Fill the greyed-out 3×3 schematic with the right tiles. Get all nine correct and the RC oscillator comes alive.</p>
+</div></header>
+
+<main class="wrap">
+  <div class="lead">
+    <b>The mission:</b> each grey square shows a faint component or wire. Find the matching tile in the tray and drop it in — a straight wire, an elbow, a resistor, a capacitor, the inverter, and a buzzer. When the whole loop is closed, the inverter charges and discharges the capacitor through the resistor over and over — a <b>relaxation oscillator</b> — and the buzzer sings. Tap a tile then tap a square, or drag it across.
+  </div>
+
+  <div class="bar">
+    <span class="count">Placed: <b id="score">0</b> / 9</span>
+    <span class="grow"></span>
+    <button id="hint" aria-pressed="false">💡 Show labels</button>
+    <button id="reset">↺ Reset</button>
+  </div>
+
+  <div class="stage">
+    <div class="boardwrap">
+      <div class="rail v">＋3&nbsp;V rail</div>
+      <div id="board" role="group" aria-label="3 by 3 oscillator grid"></div>
+      <div class="rail g">GND rail ⏚</div>
+    </div>
+
+    <div class="tray">
+      <h2>Tile tray</h2>
+      <p>Drag a tile onto its square — or tap a tile, then tap a square.</p>
+      <div class="tiles" id="tray"></div>
+
+      <div class="win" id="win">
+        <h2>⚡ The oscillator lives!</h2>
+        <p>You closed the feedback loop — inverter → R → C → back again. You are the Master of Time. 🎉</p>
+      </div>
+      <div class="touchpad" id="touchpad">
+        <div class="pad" id="pad">👆 Hold &amp; slide — “touch the RC node”<br><small>your body adds capacitance → the pitch bends</small></div>
+        <button id="sound" aria-pressed="false">🔈 Sound: off</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  Companion puzzle to the <a href="index.html">MagTile Circuits build guide</a> ·
+  <a href="https://borenw.github.io/">Page 38 · Bo's Engineering Curriculum</a>
+</div></footer>
+
+<script>
+/* ---------- tile artwork ---------------------------------------------------
+   120×120 canvas, center (60,60). Edge mids: top(60,0) right(120,60)
+   bottom(60,120) left(0,60). One draw() renders both the grey ghost
+   (in the board) and the sharp black tile (in the tray) from one spec. */
+const C=60, E={top:[60,0],right:[120,60],bottom:[60,120],left:[0,60]};
+function wire(edges,col,w){let s='';for(const e of edges){const[x,y]=E[e];
+  s+=`<path d="M${x} ${y} L60 60" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;}
+  return s;}
+function draw(id,ghost){
+  const col = ghost? 'var(--ghost)' : 'var(--wire)';
+  const w = 8;
+  const dot=(c)=>`<circle cx="60" cy="60" r="7" fill="${ghost?'var(--ghost)':c}"/>`;
+  let g=`<svg viewBox="0 0 120 120" role="img" aria-label="${id}">`;
+  switch(id){
+    case 'elbow_br': g+=wire(['bottom','right'],col,w); break;
+    case 'elbow_lb': g+=wire(['left','bottom'],col,w); break;
+    case 'res':{ // horizontal resistor, connects left & right
+      g+=`<path d="M0 60 L40 60" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      g+=`<polyline points="40,60 46,48 54,72 62,48 70,72 78,48 82,60" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+      g+=`<path d="M82 60 L120 60" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      break;}
+    case 'cap':{ // IN node: top + right wires + cap down to bottom
+      g+=wire(['top','right'],col,w);
+      g+=`<path d="M60 60 L60 78" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+      g+=`<line x1="42" y1="80" x2="78" y2="80" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+      g+=`<line x1="42" y1="92" x2="78" y2="92" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+      g+=`<path d="M60 92 L60 120" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+      g+=dot(id==='cap'?'#0052CC':col);
+      break;}
+    case 'inv':{ // inverter: input left, output right, gnd down
+      g+=`<path d="M0 60 L44 60" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      g+=`<path d="M44 34 L44 86 L88 60 Z" fill="${ghost?'#fff':'#fff'}" stroke="${col}" stroke-width="6" stroke-linejoin="round"/>`;
+      g+=`<circle cx="94" cy="60" r="7" fill="#fff" stroke="${col}" stroke-width="6"/>`;
+      g+=`<path d="M101 60 L120 60" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      g+=`<path d="M60 78 L60 120" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      break;}
+    case 'out':{ // OUT node: left + top + bottom, junction dot
+      g+=wire(['left','top','bottom'],col,w); g+=dot('#6554C0'); break;}
+    case 'gnd_tr': g+=wire(['top','right'],col,w); break;               // GND corner
+    case 'gnd_t':  g+=wire(['left','right','top'],col,w); g+=dot(col); break; // GND T
+    case 'buzz':{ // buzzer: top + left leads into a piezo disc, sound arcs
+      g+=`<path d="M60 0 L60 40" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      g+=`<path d="M0 60 L40 60" stroke="${col}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+      g+=`<circle cx="60" cy="60" r="20" fill="none" stroke="${col}" stroke-width="6"/>`;
+      g+=`<circle cx="60" cy="60" r="9" fill="${ghost?'var(--ghost)':'#DE350B'}"/>`;
+      const arc=ghost?'var(--ghost)':'#DE350B';
+      g+=`<path d="M84 44 q10 16 0 32" fill="none" stroke="${arc}" stroke-width="4" stroke-linecap="round"/>`;
+      g+=`<path d="M92 38 q16 22 0 44" fill="none" stroke="${arc}" stroke-width="4" stroke-linecap="round"/>`;
+      break;}
+  }
+  g+='</svg>'; return g;
+}
+
+/* ---------- the 3×3 solution ------------------------------------------------ */
+const SOLUTION=[
+  'elbow_br','res','elbow_lb',   // row 0 : feedback loop across the top
+  'cap','inv','out',             // row 1 : IN(cap) → inverter → OUT
+  'gnd_tr','gnd_t','buzz'        // row 2 : GND rail + buzzer to ground
+];
+const LABEL={elbow_br:'wire',res:'R1',elbow_lb:'wire',cap:'C1',inv:'inverter',
+  out:'node',gnd_tr:'GND',gnd_t:'GND',buzz:'buzzer'};
+
+const board=document.getElementById('tray');
+const grid=document.getElementById('board');
+let cells=[], placed=0, picked=null;
+
+/* build board cells with grey ghosts */
+SOLUTION.forEach((id,i)=>{
+  const c=document.createElement('div');
+  c.className='cell'; c.dataset.want=id; c.dataset.idx=i;
+  c.innerHTML=draw(id,true);
+  grid.appendChild(c); cells.push(c);
+});
+
+/* build shuffled tray */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=(i*7+3)%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+let order=shuffle([...Array(9).keys()]);
+function buildTray(){
+  board.innerHTML='';
+  order.forEach(i=>{
+    const id=SOLUTION[i];
+    const t=document.createElement('div');
+    t.className='tile'; t.dataset.id=id; t.draggable=true;
+    t.innerHTML=draw(id,false)+`<span class="nm">${LABEL[id]}</span>`;
+    board.appendChild(t);
+  });
+}
+buildTray();
+
+/* ---------- placement logic ------------------------------------------------ */
+function place(tileEl,cellEl){
+  const id=tileEl.dataset.id, want=cellEl.dataset.want;
+  if(cellEl.classList.contains('filled')) return false;
+  if(id!==want){ cellEl.classList.add('bad');
+    setTimeout(()=>cellEl.classList.remove('bad'),350); return false; }
+  cellEl.classList.remove('drop'); cellEl.classList.add('filled');
+  cellEl.innerHTML=draw(id,false);
+  tileEl.remove(); placed++;
+  document.getElementById('score').textContent=placed;
+  if(picked===tileEl) picked=null;
+  if(placed===9) win();
+  return true;
+}
+function findTile(id){return [...board.querySelectorAll('.tile')].find(t=>t.dataset.id===id);}
+
+/* tap-to-select then tap cell */
+board.addEventListener('click',e=>{
+  const t=e.target.closest('.tile'); if(!t)return;
+  if(picked===t){picked.classList.remove('sel');picked=null;return;}
+  if(picked)picked.classList.remove('sel');
+  picked=t; t.classList.add('sel');
+});
+grid.addEventListener('click',e=>{
+  const c=e.target.closest('.cell'); if(!c||!picked)return;
+  const ok=place(picked,c);
+  if(!ok&&picked)picked.classList.remove('sel');
+});
+
+/* native drag & drop */
+let dragId=null;
+board.addEventListener('dragstart',e=>{
+  const t=e.target.closest('.tile'); if(!t)return;
+  dragId=t.dataset.id; t.classList.add('drag');
+  e.dataTransfer.setData('text/plain',dragId);
+});
+board.addEventListener('dragend',e=>{const t=e.target.closest('.tile');if(t)t.classList.remove('drag');});
+grid.addEventListener('dragover',e=>{e.preventDefault();
+  const c=e.target.closest('.cell'); if(c&&!c.classList.contains('filled'))c.classList.add('drop');});
+grid.addEventListener('dragleave',e=>{const c=e.target.closest('.cell');if(c)c.classList.remove('drop');});
+grid.addEventListener('drop',e=>{e.preventDefault();
+  const c=e.target.closest('.cell'); if(!c||!dragId)return;
+  const t=findTile(dragId); c.classList.remove('drop');
+  if(t)place(t,c); dragId=null;});
+
+/* pointer drag for touch (ghost follows finger) */
+let ptTile=null, ghostEl=null;
+board.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse')return; // mouse uses click/DnD
+  const t=e.target.closest('.tile'); if(!t)return;
+  ptTile=t; ghostEl=t.cloneNode(true); ghostEl.className='tile drag-ghost';
+  document.body.appendChild(ghostEl); moveGhost(e); t.setPointerCapture(e.pointerId);
+});
+board.addEventListener('pointermove',e=>{if(ptTile)moveGhost(e);});
+board.addEventListener('pointerup',e=>{
+  if(!ptTile)return;
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const c=el&&el.closest('.cell');
+  if(c)place(ptTile,c);
+  if(ghostEl){ghostEl.remove();ghostEl=null;} ptTile=null;
+});
+function moveGhost(e){if(ghostEl){ghostEl.style.left=e.clientX+'px';ghostEl.style.top=e.clientY+'px';}}
+
+/* ---------- controls ------------------------------------------------------- */
+document.getElementById('hint').addEventListener('click',e=>{
+  const on=document.body.classList.toggle('hint-off')===false;
+  e.currentTarget.setAttribute('aria-pressed',on);
+});
+document.getElementById('reset').addEventListener('click',()=>{
+  placed=0;picked=null;document.getElementById('score').textContent=0;
+  document.getElementById('win').classList.remove('show');
+  document.getElementById('touchpad').classList.remove('show');
+  stopTone();
+  cells.forEach(c=>{c.className='cell';c.innerHTML=draw(c.dataset.want,true);});
+  order=shuffle([...Array(9).keys()]); buildTray();
+});
+
+/* ---------- win + Web Audio touch-theremin -------------------------------- */
+function win(){
+  document.getElementById('win').classList.add('show');
+  document.getElementById('touchpad').classList.add('show');
+  cells.forEach((c,i)=>setTimeout(()=>c.style.filter='drop-shadow(0 0 6px #00A870)',i*80));
+}
+let actx=null,osc=null,gain=null,soundOn=false;
+const BASE=1800;
+function startTone(){
+  if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+  osc=actx.createOscillator();gain=actx.createGain();
+  osc.type='square';osc.frequency.value=BASE;
+  gain.gain.value=0.06;osc.connect(gain);gain.connect(actx.destination);osc.start();
+}
+function stopTone(){if(osc){try{osc.stop();}catch(_){}}osc=null;soundOn=false;
+  const b=document.getElementById('sound');if(b){b.setAttribute('aria-pressed',false);b.textContent='🔈 Sound: off';}}
+document.getElementById('sound').addEventListener('click',e=>{
+  soundOn=!soundOn;
+  if(soundOn){startTone();e.currentTarget.setAttribute('aria-pressed',true);e.currentTarget.textContent='🔊 Sound: on';}
+  else stopTone();
+});
+/* touch pad bends pitch — simulates hand capacitance loading the RC node */
+const pad=document.getElementById('pad');
+function bend(ev){
+  if(!osc)return;
+  const r=pad.getBoundingClientRect();
+  const x=Math.min(1,Math.max(0,( (ev.clientX??r.left)-r.left)/r.width));
+  // more "touch" (right/down) → more parallel C → lower frequency
+  const f=BASE*Math.pow(0.28,x);
+  osc.frequency.setTargetAtTime(f,actx.currentTime,0.02);
+}
+function unbend(){if(osc)osc.frequency.setTargetAtTime(BASE,actx.currentTime,0.05);}
+pad.addEventListener('pointerdown',e=>{pad.setPointerCapture(e.pointerId);bend(e);});
+pad.addEventListener('pointermove',e=>{if(e.buttons||e.pointerType!=='mouse')bend(e);});
+pad.addEventListener('pointerup',unbend);
+pad.addEventListener('pointerleave',unbend);
+</script>
+</body>
+</html>
